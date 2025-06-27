@@ -1,0 +1,13 @@
+services:
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+
+  server:
+    build: ./apps/server
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on: [redis]
+    ports: ["4000:4000"]
+    command: pnpm --filter @mini-trello/server dev
