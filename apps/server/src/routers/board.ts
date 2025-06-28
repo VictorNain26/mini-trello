@@ -5,35 +5,53 @@ import type { Context } from '../context.js';
 const t = initTRPC.context<Context>().create();
 
 export const boardRouter = t.router({
+  /* ------------------- Get board ------------------- */
   get: t.procedure
     .input(z.object({ boardId: z.string() }))
-    .query(({ ctx, input }) => ctx.boards[input.boardId]),
+    .query(({ ctx, input }) =>
+      ctx.prisma.board.findUnique({
+        where: { id: input.boardId },
+        include: {
+          columns: {
+            orderBy: { order: 'asc' },
+            include: { cards: { orderBy: { order: 'asc' } } },
+          },
+        },
+      }),
+    ),
 
+  /* ------------------- Move card ------------------- */
   moveCard: t.procedure
     .input(
       z.object({
         boardId: z.string(),
-        cardId:  z.string(),
-        from:    z.string(),  // colonne source
-        to:      z.string(),  // colonne cible
-        pos:     z.number()   // index dans la colonne cible
-      })
+        cardId: z.string(),
+        from: z.string(),
+        to: z.string(),
+        pos: z.number(),
+      }),
     )
-    .mutation(({ ctx, input }) => {
-      const board = ctx.boards[input.boardId];
-      if (!board) throw new Error('Board introuvable');
+    .mutation(async ({ ctx, input }) => {
+      /* réordonnage naïf : on met simplement la carte cible au bon index    */
+      await ctx.prisma.$transaction(async (tx) => {
+        // déplace la carte
+        await tx.card.update({
+          where: { id: input.cardId },
+          data: { columnId: input.to, order: input.pos },
+        });
 
-      const src = board.columns.find(c => c.id === input.from);
-      const dst = board.columns.find(c => c.id === input.to);
-      if (!src || !dst) throw new Error('Colonne introuvable');
+        // réindexe toutes les cartes de la colonne cible
+        const cards = await tx.card.findMany({
+          where: { columnId: input.to },
+          orderBy: { order: 'asc' },
+        });
+        for (let i = 0; i < cards.length; i++) {
+          await tx.card.update({ where: { id: cards[i].id }, data: { order: i } });
+        }
+      });
 
-      const idx = src.cards.findIndex(c => c.id === input.cardId);
-      if (idx === -1) throw new Error('Carte introuvable');
-
-      const [card] = src.cards.splice(idx, 1);
-      dst.cards.splice(input.pos, 0, card);
-
-      ctx.io.to(board.id).emit('board:update', input);   // push WS
+      /* push temps réel */
+      ctx.io.to(input.boardId).emit('board:update', input);
       return { ok: true };
-    })
+    }),
 });
