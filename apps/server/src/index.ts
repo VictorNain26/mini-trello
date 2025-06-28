@@ -8,12 +8,15 @@ import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { initTRPC } from '@trpc/server';
 import { boardRouter } from './routers/board.js';
 import { createContext } from './context.js';
+import { registerPresence } from './realtime/presence.js';
 
 const app  = express();
 const http = createServer(app);
 
 /* ---------- Socket.IO ---------- */
 const io = new IOServer(http, { cors: { origin: '*' } });
+
+registerPresence(io);
 
 // Redis adapter (optionnel en dev)
 if (process.env.REDIS_URL) {
