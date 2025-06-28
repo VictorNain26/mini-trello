@@ -1,13 +1,15 @@
 import { usePresence } from '@/hooks/usePresence';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export function PresenceBar({ boardId }: { boardId: string }) {
+export default function PresenceBar({ boardId }: { boardId: string }) {
   const users = usePresence(boardId);
+
+  if (!users.length) return null;
 
   return (
     <div className="flex items-center gap-2">
       <AnimatePresence>
-        {users.map(u => (
+        {users.map((u) => (
           <motion.div
             key={u.id}
             layout
@@ -18,7 +20,7 @@ export function PresenceBar({ boardId }: { boardId: string }) {
             style={{ background: u.color }}
             title={u.name}
           >
-            {u.name.slice(0,2).toUpperCase()}
+            {u.name.slice(0, 2).toUpperCase()}
           </motion.div>
         ))}
       </AnimatePresence>

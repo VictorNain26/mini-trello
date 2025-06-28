@@ -1,36 +1,19 @@
-# --- Node / pnpm ---
+# node / pnpm
 node_modules/
 .pnpm/
-
-# Turborepo & pnpm caches
 .turbo/
 .pnpm-store/
 
-# Build outputs
+# builds
 dist/
 build/
 .next/
-coverage/
-*.log
-
-# TypeScript
+coverage/"
 *.tsbuildinfo
 
-# Vite / React
-.vite/
-*.css.ts
-
-# Env & secrets
-.env
-.env.*          # .env.local, .env.server etc.
-
-# Docker
-*.local.yml
-docker-compose.override.yml
-
-# OS & IDE
+# env
+.env*
+# OS / IDE
 .DS_Store
-Thumbs.db
 .idea/
 .vscode/
-*.swp

@@ -1,6 +1,11 @@
 import { io, type Socket } from 'socket.io-client';
 
-const API_HOST = import.meta.env.VITE_API_HOST ?? 'localhost:4000';
-export const socket: Socket = io(`ws://${API_HOST}`, {
-  autoConnect: false
+const HOST =
+  import.meta.env.VITE_API_HOST ??
+  (import.meta.env.DEV ? 'localhost:4000' : window.location.host);
+
+export const socket: Socket = io(`http://${HOST}`, {
+  path: '/socket.io',
+  autoConnect: false,
+  withCredentials: true,
 });
