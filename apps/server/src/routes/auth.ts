@@ -1,11 +1,11 @@
 import { Router, type RequestHandler } from 'express';
 import bcrypt from 'bcrypt';
-import { prisma } from '../context.js';
+import { prisma } from '../db.ts';
 import { auth } from '../auth.js';
 
 export const authRouter = Router();
 
-/* =====  SIGN-UP  =================================================== */
+/* =====  SIGN-UP  ===== */
 const signup: RequestHandler = async (req, res, next) => {
   try {
     const { email, password, name } = req.body as {
@@ -36,5 +36,5 @@ const signup: RequestHandler = async (req, res, next) => {
 
 authRouter.post('/signup', signup);
 
-/* =====  LOGIN / LOGOUT / SESSION  ================================== */
-authRouter.use(auth); // /auth/callback/credentials, /auth/session, ...
+/* =====  LOGIN / LOGOUT / SESSION (Auth.js)  ===== */
+authRouter.use(auth);
