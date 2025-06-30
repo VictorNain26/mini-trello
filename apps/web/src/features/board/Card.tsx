@@ -1,4 +1,4 @@
-import { useSortable, defaultAnimateLayoutChanges } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Card as CardType } from '@/types';
 import { useMemo } from 'react';
@@ -11,22 +11,21 @@ export default function Card({ card, colId, index }: Props) {
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
   } = useSortable({
     id: card.id,
     data: { col: colId, index },
-    animateLayoutChanges: (args) =>
-      defaultAnimateLayoutChanges({ ...args, wasDragging: true }),
+    /* aucune animation post-drag */
+    animateLayoutChanges: () => false,
   });
 
   const style = useMemo(
     () => ({
       transform: CSS.Translate.toString(transform),
-      transition,
-      opacity: isDragging ? 0.5 : 1,
+      transition: undefined,        // déplacement instantané
+      opacity: isDragging ? 0.6 : 1,
     }),
-    [transform, transition, isDragging],
+    [transform, isDragging],
   );
 
   return (
@@ -35,7 +34,7 @@ export default function Card({ card, colId, index }: Props) {
       style={style}
       {...attributes}
       {...listeners}
-      className="rounded-lg bg-white p-3 shadow-sm text-sm cursor-grab select-none"
+      className="rounded-lg bg-white p-3 cursor-grab select-none shadow-sm"
     >
       {card.title}
     </div>

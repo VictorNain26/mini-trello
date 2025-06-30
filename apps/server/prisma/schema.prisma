@@ -22,6 +22,7 @@ model Column {
   board    Board    @relation(fields: [boardId], references: [id])
   boardId  String
   cards    Card[]
+  @@index([boardId, order])
 }
 
 model Card {
@@ -30,4 +31,53 @@ model Card {
   order     Int
   column    Column   @relation(fields: [columnId], references: [id])
   columnId  String
+  @@index([columnId, order])
 }
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  emailVerified DateTime?
+  hashedPwd     String
+  name          String?
+  image         String?
+  color         String   @default("hsl(200 80% 60%)")
+
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  expires      DateTime
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+

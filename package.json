@@ -3,20 +3,26 @@
   "private": true,
   "packageManager": "pnpm@9.1.0",
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "test": "turbo test"
+    "dev:api":     "pnpm --filter @mini-trello/server dev",
+    "dev:web":     "pnpm --filter @mini-trello/web dev",
+    "docker:up":   "docker compose up -d postgres redis",
+    "docker:down": "docker compose down",
+    "dev":         "pnpm docker:up && concurrently -p name \"pnpm dev:api\" \"pnpm dev:web\"",
+    "db:studio":   "pnpm --filter @mini-trello/server exec prisma studio",
+    "db:reset":    "pnpm --filter @mini-trello/server exec prisma migrate reset --force",
+    "db:seed":      "pnpm --filter @mini-trello/server exec prisma db seed"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
-    "@types/node": "^24.0.5",
+    "@types/node": "^24.0.7",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
     "@typescript-eslint/parser": "^8.35.0",
-    "eslint": "^9.29.0",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.30.0",
     "eslint-config-prettier": "^10.1.5",
     "prettier": "^3.6.2",
     "tsx": "^4.20.3",
-    "turbo": "^2.2.4",
+    "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   }
 }
