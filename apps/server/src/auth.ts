@@ -4,43 +4,35 @@ import CredentialsProvider from '@auth/core/providers/credentials';
 import bcrypt from 'bcrypt';
 import { prisma } from './db.js';
 
-/* ---------- Secret ---------- */
 const SECRET = process.env.AUTH_SECRET;
 if (!SECRET || SECRET.length < 32) {
   console.warn(
-    '⚠️  AUTH_SECRET manquant ou trop court ! Générez-en un de 32 caractères mini ' +
-    "(openssl rand -hex 32) – l'appli démarre quand même en mode DEV.",
+    '⚠️ AUTH_SECRET manquant ou <32 caractères : fallback DEV appliqué. En prod, définis-en un ≥32 chars.',
   );
 }
 
-/* ─────────────  Auth.js config  ───────────── */
 export const authConfig: ExpressAuthConfig = {
   adapter: PrismaAdapter(prisma),
-  secret:  SECRET ?? 'dev-secret',          // ← fallback seulement en dev
-  session: { strategy: 'jwt' as const },
-
+  secret: SECRET ?? 'dev-secret',
+  session: { strategy: 'jwt' },
   providers: [
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email:    { label: 'Email',    type: 'email' },
+        email:    { label: 'Email',    type: 'email',    placeholder: 'you@example.com' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize({ email, password }: Record<string, unknown>) {
-        if (typeof email !== 'string' || typeof password !== 'string')
+      async authorize({ email, password }) {
+        try {
+          if (typeof email !== 'string' || typeof password !== 'string') return null;
+          const user = await prisma.user.findUnique({ where: { email } });
+          if (!user) return null;
+          const match = await bcrypt.compare(password, user.hashedPwd);
+          if (!match) return null;
+          return { id: user.id, email: user.email, name: user.name };
+        } catch {
           return null;
-
-        /* -- récupère l'utilisateur -- */
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user) return null;
-
-        /* -- compare le hash bcrypt -- */
-        const ok = await bcrypt.compare(password, user.hashedPwd);
-
-        /* -- renvoie les infos publiques ou null -- */
-        return ok
-          ? { id: user.id, email: user.email, name: user.name }
-          : null;
+        }
       },
     }),
   ],

@@ -1,42 +1,70 @@
-import { Router, type RequestHandler } from 'express';
+import { Router } from 'express';
 import bcrypt from 'bcrypt';
+import { z } from 'zod';
 import { prisma } from '../db.js';
 import { auth } from '../auth.js';
 
 export const authRouter = Router();
 
-/* ---------- SIGN-UP ---------- */
-const signup: RequestHandler = async (req, res, next): Promise<void> => {
-  try {
-    const { email, password, name } = req.body as {
-      email: string;
-      password: string;
-      name?: string;
-    };
+const SignupSchema = z.object({
+  email:    z.string().email(),
+  password: z.string().min(6, 'Le mot de passe doit faire ≥6 caractères'),
+  name:     z.string().max(50).optional(),
+});
+const LoginSchema = z.object({
+  email:    z.string().email(),
+  password: z.string().min(1, 'Le mot de passe est requis'),
+});
 
-    if (!email || !password) {
-      res.status(400).json({ error: 'email & password required' });
+authRouter.post('/signup', async (req, res, next) => {
+  try {
+    const parsed = SignupSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.errors[0].message });
       return;
     }
+    const { email, password, name } = parsed.data;
 
     if (await prisma.user.findUnique({ where: { email } })) {
-      res.status(409).json({ error: 'Email already used' });
+      res.status(409).json({ error: 'Email déjà utilisé' });
       return;
     }
 
     const hashedPwd = await bcrypt.hash(password, 10);
-
-    await prisma.user.create({
-      data: { email, hashedPwd, name },
-    });
-
-    res.status(201).end();
+    await prisma.user.create({ data: { email, hashedPwd, name } });
+    res.status(201).json({ ok: true });
+    return;
   } catch (err) {
     next(err);
   }
-};
+});
 
-authRouter.post('/signup', signup);
+authRouter.post('/login', async (req, res, next) => {
+  try {
+    const parsed = LoginSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.errors[0].message });
+      return;
+    }
+    const { email, password } = parsed.data;
 
-/* ---------- LOGIN / LOGOUT / SESSION (Auth.js) ---------- */
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+      return;
+    }
+
+    const match = await bcrypt.compare(password, user.hashedPwd);
+    if (!match) {
+      res.status(401).json({ error: 'Email ou mot de passe incorrect' });
+      return;
+    }
+
+    res.status(200).json({ ok: true });
+    return;
+  } catch (err) {
+    next(err);
+  }
+});
+
 authRouter.use(auth);

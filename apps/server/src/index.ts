@@ -14,42 +14,47 @@ import { boardRouter } from './routers/board.js';
 import { userRouter } from './routers/user.js';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 
-const app  = express();
-app.set('trust proxy', true);              // ← NOUVEAU : recommandation Auth.js
-const http = createServer(app);
+const app = express();
+app.set('trust proxy', true);
 
-/* ---------- middlewares ---------- */
-app.use(cors({ origin: ['http://localhost:5173'], credentials: true }));
-app.use(express.json());
+app.get('/', (_req, res) => { res.json({ ok: true }); return; });
 
-/* ---------- Auth routes ---------- */
-app.use('/auth', authRouter);
-
-/* ---------- Socket.IO ---------- */
-const io = new Server(http, {
-  cors: {
+app.use(
+  cors({
     origin: 'http://localhost:5173',
     credentials: true,
-  },
+    methods: ['GET','POST','OPTIONS'],
+    allowedHeaders: ['Content-Type','Authorization','X-CSRF-Token'],
+  }),
+);
+app.options('*', cors());
+app.use(express.json());
+
+// Auth
+app.use('/auth', authRouter);
+
+// HTTP + WS
+const http = createServer(app);
+const io = new Server(http, {
+  cors: { origin: 'http://localhost:5173', credentials: true },
   path: '/socket.io',
 });
-
 registerPresence(io);
-
-/* Redis adapter si REDIS_URL présent */
 if (process.env.REDIS_URL) {
   const pub = createClient({ url: process.env.REDIS_URL });
   const sub = pub.duplicate();
-  await Promise.all([pub.connect(), sub.connect()]);
+  await pub.connect();
+  await sub.connect();
   io.adapter(createAdapter(pub, sub));
 }
 
-/* ---------- tRPC ---------- */
+// tRPC
 const t = initTRPC.context().create();
 export const appRouter = t.router({
   board: boardRouter,
   user:  userRouter,
 });
+export type AppRouter = typeof appRouter;
 
 app.use(
   '/trpc',
@@ -59,8 +64,5 @@ app.use(
   }),
 );
 
-export type AppRouter = typeof appRouter;
-
-/* ---------- start ---------- */
 const PORT = process.env.PORT ?? 4000;
 http.listen(PORT, () => console.log(`✅ API + WS on :${PORT}`));
