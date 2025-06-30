@@ -4,10 +4,19 @@ import CredentialsProvider from '@auth/core/providers/credentials';
 import bcrypt from 'bcrypt';
 import { prisma } from './db.js';
 
+/* ---------- Secret ---------- */
+const SECRET = process.env.AUTH_SECRET;
+if (!SECRET || SECRET.length < 32) {
+  console.warn(
+    '⚠️  AUTH_SECRET manquant ou trop court ! Générez-en un de 32 caractères mini ' +
+    "(openssl rand -hex 32) – l'appli démarre quand même en mode DEV.",
+  );
+}
+
 /* ─────────────  Auth.js config  ───────────── */
 export const authConfig: ExpressAuthConfig = {
   adapter: PrismaAdapter(prisma),
-  secret:  process.env.AUTH_SECRET ?? 'dev-secret',
+  secret:  SECRET ?? 'dev-secret',          // ← fallback seulement en dev
   session: { strategy: 'jwt' as const },
 
   providers: [

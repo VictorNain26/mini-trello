@@ -15,6 +15,7 @@ import { userRouter } from './routers/user.js';
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 
 const app  = express();
+app.set('trust proxy', true);              // ← NOUVEAU : recommandation Auth.js
 const http = createServer(app);
 
 /* ---------- middlewares ---------- */

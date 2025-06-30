@@ -17,6 +17,5 @@
       "@/*": ["src/*"],
       "@mini-trello/server": ["../server/src/index.ts"]
     }
-  },
-  "include": ["src", "../server/test-bcrypt.ts"]
+  }
 }

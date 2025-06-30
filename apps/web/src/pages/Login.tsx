@@ -10,9 +10,9 @@ export default function Login() {
 
   const nav  = useNavigate();
   const loc  = useLocation();
-  const from = (loc.state as any)?.from?.pathname || '/';
+  const from = (loc.state as any)?.from?.pathname || '/';     // ex : “/” ou “/board/123”
 
-  /* -- récupérer le token CSRF + cookie -- */
+  /* -- récupère le token CSRF + cookie -- */
   useEffect(() => {
     fetch('http://localhost:4000/auth/csrf', { credentials: 'include' })
       .then((r) => r.json())
@@ -30,13 +30,14 @@ export default function Login() {
     const body = new URLSearchParams({
       email,
       password,
-      csrfToken:   csrf,
-      callbackUrl: from,
-      redirect:    'false',   // ← clé correcte
+      csrfToken: csrf,
+      /* --- URL ABSOLUE vers le front (5173) --- */
+      callbackUrl: `${window.location.origin}${from}`,
+      json: 'true',                         // réponse JSON, pas de redirection 302
     });
 
     const res = await fetch('http://localhost:4000/auth/callback/credentials', {
-      method:  'POST',
+      method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body,
@@ -45,8 +46,8 @@ export default function Login() {
     setLoading(false);
 
     if (res.ok) {
-      const { url, error: err } = await res.json();
-      if (!err && url) return nav(url, { replace: true });
+      /* succès : on reste sur le même origin, on navigue simplement vers “from” */
+      return nav(from, { replace: true });
     }
 
     setError('Email ou mot de passe incorrect');
