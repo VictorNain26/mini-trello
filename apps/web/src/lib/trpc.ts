@@ -12,7 +12,14 @@ export const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       url: `http://${HOST}/trpc`,
-      headers: () => ({ /* auth headers ici si besoin */ }),
+
+      /** ---- Ajoute credentials: 'include' ---- */
+      fetch(url, options) {
+        return fetch(url, {
+          ...options,
+          credentials: 'include',   // ← cookie authjs_session envoyé
+        });
+      },
     }),
   ],
 });

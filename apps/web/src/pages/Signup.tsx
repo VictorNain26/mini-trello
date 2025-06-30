@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Signup() {
-  const [name, setName]       = useState('');
-  const [email, setEmail]     = useState('');
-  const [password, setPwd]    = useState('');
-  const [error, setError]     = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPwd] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [success, setSuccess] = useState(false);
+  const nav = useNavigate();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +23,8 @@ export default function Signup() {
 
     setLoading(false);
     if (res.status === 201) {
-      navigate('/login');
+      setSuccess(true);
+      setTimeout(() => nav('/login'), 1000);
     } else {
       const json = await res.json().catch(() => ({}));
       setError(json.error ?? 'Erreur serveur');
@@ -31,51 +33,28 @@ export default function Signup() {
 
   return (
     <div className="min-h-screen grid place-content-center bg-neutral-50">
-      <form
-        onSubmit={submit}
-        className="grid gap-4 bg-white p-8 rounded-xl shadow w-96"
-      >
+      <form onSubmit={submit} className="grid gap-4 bg-white p-8 rounded-xl shadow w-96">
         <h2 className="text-lg font-semibold text-center">Créer un compte</h2>
 
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Nom (optionnel)"
-          className="border p-2 rounded"
-        />
-
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="email@example.com"
-          className="border p-2 rounded"
-        />
-
-        <input
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPwd(e.target.value)}
-          placeholder="mot de passe"
-          className="border p-2 rounded"
-        />
+        <input value={name} onChange={(e) => setName(e.target.value.trim())}
+               placeholder="Nom (optionnel)" className="border p-2 rounded" />
+        <input type="email" required value={email}
+               onChange={(e) => setEmail(e.target.value.trim())}
+               placeholder="email@example.com" className="border p-2 rounded" />
+        <input type="password" required value={password}
+               onChange={(e) => setPwd(e.target.value)}
+               placeholder="mot de passe" className="border p-2 rounded" />
 
         {error && <p className="text-sm text-red-600">{error}</p>}
+        {success && <p className="text-sm text-green-700">Compte créé ! Redirection…</p>}
 
-        <button
-          disabled={loading}
-          className="bg-black text-white p-2 rounded disabled:opacity-50"
-        >
+        <button disabled={loading}
+                className="bg-black text-white p-2 rounded disabled:opacity-50">
           {loading ? 'Création…' : 'Créer le compte'}
         </button>
 
         <p className="text-xs text-center">
-          Déjà inscrit ?{' '}
-          <a href="/login" className="underline">
-            Se connecter
-          </a>
+          Déjà inscrit ? <a href="/login" className="underline">Se connecter</a>
         </p>
       </form>
     </div>

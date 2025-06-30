@@ -1,12 +1,12 @@
 import { Router, type RequestHandler } from 'express';
 import bcrypt from 'bcrypt';
-import { prisma } from '../db.ts';
+import { prisma } from '../db.js';
 import { auth } from '../auth.js';
 
 export const authRouter = Router();
 
-/* =====  SIGN-UP  ===== */
-const signup: RequestHandler = async (req, res, next) => {
+/* ---------- SIGN-UP ---------- */
+const signup: RequestHandler = async (req, res, next): Promise<void> => {
   try {
     const { email, password, name } = req.body as {
       email: string;
@@ -19,14 +19,16 @@ const signup: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const exists = await prisma.user.findUnique({ where: { email } });
-    if (exists) {
+    if (await prisma.user.findUnique({ where: { email } })) {
       res.status(409).json({ error: 'Email already used' });
       return;
     }
 
     const hashedPwd = await bcrypt.hash(password, 10);
-    await prisma.user.create({ data: { email, hashedPwd, name } });
+
+    await prisma.user.create({
+      data: { email, hashedPwd, name },
+    });
 
     res.status(201).end();
   } catch (err) {
@@ -36,5 +38,5 @@ const signup: RequestHandler = async (req, res, next) => {
 
 authRouter.post('/signup', signup);
 
-/* =====  LOGIN / LOGOUT / SESSION (Auth.js)  ===== */
+/* ---------- LOGIN / LOGOUT / SESSION (Auth.js) ---------- */
 authRouter.use(auth);

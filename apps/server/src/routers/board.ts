@@ -1,100 +1,77 @@
 import { z } from 'zod';
-import { initTRPC, TRPCError } from '@trpc/server';
+import { initTRPC } from '@trpc/server';
 import type { Context, Tx } from '../context.js';
+import { protectedProcedure } from '../trpc/protected.js';
 
 const t = initTRPC.context<Context>().create();
 
+/* ─────────── Types utilitaires ─────────── */
+const BoardInput  = z.object({ title: z.string().min(1) });
+const ColumnInput = z.object({ boardId: z.string(), title: z.string().min(1) });
+const CardInput   = z.object({
+  columnId: z.string(),
+  title:    z.string().min(1),
+  order:    z.number().int().min(0).default(0),
+});
+
 export const boardRouter = t.router({
-  /* -------------------- GET board -------------------- */
-  get: t.procedure
-    .input(z.object({ boardId: z.string() }))
-    .query(({ ctx, input }) =>
-      ctx.prisma.board.findUnique({
-        where: { id: input.boardId },
-        select: {
-          id: true,
-          title: true,
-          columns: {
-            orderBy: { order: 'asc' },
-            select: {
-              id: true,
-              title: true,
-              order: true,
-              cards: {
-                orderBy: { order: 'asc' },
-                select: { id: true, title: true, order: true },
-              },
-            },
-          },
-        },
+  /* ——— query current user boards ——— */
+  listMine: protectedProcedure.query(({ ctx }) =>
+    ctx.prisma.board.findMany({
+      where: { ownerId: ctx.userId },
+      select: { id: true, title: true, createdAt: true },
+      orderBy: { createdAt: 'desc' },
+    }),
+  ),
+
+  /* ——— create board ——— */
+  create: protectedProcedure
+    .input(BoardInput)
+    .mutation(({ ctx, input }) =>
+      ctx.prisma.board.create({
+        data: { title: input.title, ownerId: ctx.userId },
+        select: { id: true, title: true },
       }),
     ),
 
-  /* -------------------- MOVE card -------------------- */
-  moveCard: t.procedure
-    .input(
-      z.object({
-        boardId: z.string(),
-        cardId:  z.string(),
-        from:    z.string(),
-        to:      z.string(),
-        pos:     z.number().min(0),
-      }),
-    )
+  /* ——— create column ——— */
+  addColumn: protectedProcedure
+    .input(ColumnInput)
     .mutation(async ({ ctx, input }) => {
-      /* Sécurité : requête autorisée seulement si board existe */
-      const boardExists = await ctx.prisma.board.findUnique({
-        where: { id: input.boardId },
-        select: { id: true },
+      // vérifie ownership
+      const board = await ctx.prisma.board.findFirst({
+        where: { id: input.boardId, ownerId: ctx.userId },
       });
-      if (!boardExists)
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Board not found' });
+      if (!board) throw new Error('Not your board');
 
-      await ctx.prisma.$transaction(async (tx: Tx) => {
-        const { cardId, from, to, pos } = input;
-
-        /* vérifie appartenance */
-        const card = await tx.card.findUnique({
-          where: { id: cardId },
-          select: { columnId: true, order: true },
-        });
-        if (!card || card.columnId !== from)
-          throw new TRPCError({ code: 'BAD_REQUEST' });
-
-        if (from === to) {
-          /* même colonne : déplacement vertical */
-          if (pos > card.order) {
-            await tx.card.updateMany({
-              where: { columnId: from, order: { gt: card.order, lte: pos } },
-              data: { order: { decrement: 1 } },
-            });
-          } else if (pos < card.order) {
-            await tx.card.updateMany({
-              where: { columnId: from, order: { gte: pos, lt: card.order } },
-              data: { order: { increment: 1 } },
-            });
-          }
-          await tx.card.update({ where: { id: cardId }, data: { order: pos } });
-          return;
-        }
-
-        /* colonnes différentes ---------------------------------------- */
-        await tx.card.updateMany({
-          where: { columnId: from, order: { gt: card.order } },
-          data: { order: { decrement: 1 } },
-        });
-        await tx.card.updateMany({
-          where: { columnId: to, order: { gte: pos } },
-          data: { order: { increment: 1 } },
-        });
-        await tx.card.update({
-          where: { id: cardId },
-          data: { columnId: to, order: pos },
-        });
+      const pos = await ctx.prisma.column.count({
+        where: { boardId: input.boardId },
       });
 
-      /* broadcast temps réel */
-      ctx.io.to(input.boardId).emit('card:moved', input);
-      return { ok: true };
+      return ctx.prisma.column.create({
+        data: { title: input.title, order: pos, boardId: input.boardId },
+        select: { id: true, title: true, order: true },
+      });
+    }),
+
+  /* ——— create card ——— */
+  addCard: protectedProcedure
+    .input(CardInput)
+    .mutation(async ({ ctx, input }) => {
+      // ownership via join column->board
+      const col = await ctx.prisma.column.findUnique({
+        where: { id: input.columnId },
+        include: { board: { select: { ownerId: true } } },
+      });
+      if (!col || col.board.ownerId !== ctx.userId) throw new Error('Not allowed');
+
+      const pos =
+        input.order ??
+        (await ctx.prisma.card.count({ where: { columnId: input.columnId } }));
+
+      return ctx.prisma.card.create({
+        data: { title: input.title, order: pos, columnId: input.columnId },
+        select: { id: true, title: true, order: true },
+      });
     }),
 });
