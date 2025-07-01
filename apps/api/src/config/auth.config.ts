@@ -6,17 +6,14 @@ import { prisma } from "../db.js"
 
 if (!process.env.AUTH_SECRET || process.env.AUTH_SECRET.length < 32) {
   throw new Error(
-    "❌  AUTH_SECRET doit être défini dans l’environnement et contenir ≥ 32 caractères.",
+    "❌ AUTH_SECRET doit être défini dans l’environnement et contenir ≥ 32 caractères.",
   )
 }
 
 export const authConfig: ExpressAuthConfig = {
-  /* ───────────────────────── Base ───────────────────────── */
   secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" }, // + léger que la session DB
-
-  /* ───────────────────── Providers ──────────────────────── */
+  session: { strategy: "jwt" },
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -25,7 +22,8 @@ export const authConfig: ExpressAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize({ email, password }) {
-        if (typeof email !== "string" || typeof password !== "string") return null
+        if (typeof email !== "string" || typeof password !== "string")
+          return null
         const user = await prisma.user.findUnique({ where: { email } })
         if (!user) return null
         const ok = await bcrypt.compare(password, user.hashedPwd)
@@ -34,17 +32,12 @@ export const authConfig: ExpressAuthConfig = {
       },
     }),
   ],
-
-  /* ───────────────────── Callbacks (facultatif) ─────────── */
   callbacks: {
     async session({ session, token }) {
-      // expose l’id dans `session.user.id`
       if (token?.sub) session.user = { ...session.user, id: token.sub }
       return session
     },
   },
-
-  /* ───────────────────── Pages custom (facultatif) ──────── */
   pages: {
     signIn:  "/login",
     signOut: "/logout",

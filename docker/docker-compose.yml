@@ -4,20 +4,38 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: mini_trello
-    ports: ["5432:5432"]
-    volumes: [pgdata:/var/lib/postgresql/data]
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
-    ports: ["6379:6379"]
+    ports:
+      - "6379:6379"
 
   api:
-    build: ../apps/api
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/mini_trello
-      REDIS_URL: redis://redis:6379
-    depends_on: [postgres, redis]
-    ports: ["4000:4000"]
-    command: pnpm --filter api dev
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: api
+    env_file:
+      - ../.env
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+      - redis
+
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: web
+    env_file:
+      - ../.env
+    ports:
+      - "5173:80"
+
 volumes:
   pgdata:
