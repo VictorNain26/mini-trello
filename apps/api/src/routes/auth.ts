@@ -67,4 +67,4 @@ authRouter.post('/login', async (req, res, next) => {
   }
 });
 
-authRouter.use(auth);
+authRouter.use('/:rest(.*)', auth);

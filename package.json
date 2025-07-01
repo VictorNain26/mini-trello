@@ -3,16 +3,12 @@
   "private": true,
   "packageManager": "pnpm@9.1.0",
   "scripts": {
-    "dev": "pnpm docker:up && concurrently -p name \"pnpm dev:api\" \"pnpm dev:web\"",
-    "dev:api": "pnpm --filter @mini-trello/server dev",
-    "dev:web": "pnpm --filter @mini-trello/web dev",
-    "docker:up": "docker compose up -d postgres redis",
-    "docker:down": "docker compose down",
-    "db:generate": "pnpm --filter @mini-trello/server exec prisma generate",
-    "db:migrate":  "pnpm --filter @mini-trello/server exec prisma migrate dev",
-    "db:reset":    "pnpm --filter @mini-trello/server exec prisma migrate reset --force",
-    "db:seed":     "pnpm --filter @mini-trello/server exec prisma db seed",
-    "db:studio": "pnpm --filter @mini-trello/server exec prisma studio"
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "db": "pnpm --filter api prisma",
+    "docker:up":   "docker compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f docker/docker-compose.yml down"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

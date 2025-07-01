@@ -7,14 +7,9 @@
   },
   "main": "index.js",
   "scripts": {
-    "dev":      "tsx watch src/index.ts",
-    "start":    "node dist/index.js",
-    "build":    "tsc",
-    "lint":     "eslint . --max-warnings 0",
-
-    "generate": "pnpm exec prisma generate",
-    "migrate":  "pnpm exec prisma migrate dev",
-    "seed":     "tsx prisma/seed.ts"
+    "dev":  "tsx watch src/index.ts",
+    "build": "rimraf && tsc -p .",
+    "lint":  "eslint ."
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
