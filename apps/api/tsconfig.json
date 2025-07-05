@@ -1,9 +1,17 @@
 {
-  "extends": "../../.config/tsconfig.base.json",
+  "extends": "../../packages/tsconfig/strict.json",
   "compilerOptions": {
     "composite": true,
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
+  "references": [
+    { "path": "../../packages/ui" },
+    { "path": "../../packages/db" }
+  ],
   "include": ["src"]
 }

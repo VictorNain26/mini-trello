@@ -1,0 +1,9 @@
+{
+  "name": "@mini-trello/db",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
