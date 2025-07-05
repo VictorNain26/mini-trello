@@ -9,3 +9,7 @@ onlyBuiltDependencies:
   - bcrypt
   - esbuild
   - prisma
+
+noHoist:
+  - '@prisma/client'
+  - '@prisma/engines'
