@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
       target: api
     env_file:
-      - ../.env
+      - ../.env.example
     ports:
       - "4000:4000"
     depends_on:
@@ -33,7 +33,7 @@ services:
       dockerfile: Dockerfile
       target: web
     env_file:
-      - ../.env
+      - ../.env.example
     ports:
       - "5173:80"
 
