@@ -4,16 +4,9 @@
     "target": "ES2022",
     "moduleResolution": "NodeNext",
     "module": "NodeNext",
-
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "esModuleInterop": true,
-
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["apps/web/src/*"],
-      "@api/*": ["apps/api/src/*"]
-    }
+    "esModuleInterop": true
   }
 }
