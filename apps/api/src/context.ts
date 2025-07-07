@@ -9,8 +9,9 @@ import { prisma } from './db.js';
 export async function createContext(opts: {
   req: Request;
   res: Response;
-  io: IOServer;
+  io?: IOServer;
 }) {
+   
   const session = await (getSession as any)(
     opts.req,
     opts.res,

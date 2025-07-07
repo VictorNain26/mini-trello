@@ -6,11 +6,19 @@ import { fileURLToPath, URL } from 'node:url';
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss({ config: '../../packages/config/tailwind.config.ts' }),
+    tailwindcss({
+      config: './tailwind.config.ts'
+    }),
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)), // alias @ → /src
+      '@api': fileURLToPath(new URL('../api/src', import.meta.url)), // alias @api → /api/src
+    },
+  },
+  css: {
+    postcss: {
+      plugins: [],
     },
   },
 });

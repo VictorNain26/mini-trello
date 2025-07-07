@@ -42,7 +42,7 @@ export function SocketProvider({ children }: PropsWithChildren) {
 }
 
 /* ───── hook ───── */
-export const useSocket = () => {
+export const useSocket = (): Socket => {
   const s = useContext(SocketContext);
   if (!s) throw new Error('useSocket must be used inside <SocketProvider>');
   return s;

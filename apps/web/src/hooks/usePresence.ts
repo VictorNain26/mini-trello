@@ -31,8 +31,8 @@ export function usePresence(boardId: string): UserPresence[] {
   const setAll = usePresenceStore((s) => s.setAll);
 
   /* fallback si pas connecté */
-  const fallbackName  = authUser?.email ?? 'Guest';
-  const fallbackColor = authUser?.color ?? 'hsl(200 80% 60%)';
+  const fallbackName  = authUser.user?.email ?? 'Guest';
+  const fallbackColor = authUser.user?.color ?? 'hsl(200 80% 60%)';
 
   const sentJoin = useRef(false);
 
@@ -42,7 +42,7 @@ export function usePresence(boardId: string): UserPresence[] {
       socket.emit('join-board', boardId);
       socket.emit('presence:join', {
         boardId,
-        name:  authUser?.name  ?? fallbackName,
+        name:  authUser.user?.name  ?? fallbackName,
         color: fallbackColor,
       });
       sentJoin.current = true;

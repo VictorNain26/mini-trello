@@ -37,10 +37,18 @@ export const authConfig: ExpressAuthConfig = {
       if (token?.sub) session.user = { ...session.user, id: token.sub }
       return session
     },
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id
+      }
+      return token
+    },
   },
   pages: {
     signIn:  "/login",
     signOut: "/logout",
     error:   "/login",
   },
+  trustHost: true,
+  basePath: "/api/auth",
 }

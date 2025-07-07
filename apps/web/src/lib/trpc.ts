@@ -1,9 +1,9 @@
 import { createTRPCReact, httpBatchLink } from '@trpc/react-query'
-import type { AppRouter } from '@api/index'
+import type { AppRouter } from '@/types/api'
 
 export const trpc = createTRPCReact<AppRouter>()
 
-export const trpcClient = trpc.createClient({
+export const trpcClient = (trpc as any).createClient({
   links: [
     httpBatchLink({
       url: `${import.meta.env.VITE_API_URL ?? ''}/trpc`,

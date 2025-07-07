@@ -2,9 +2,8 @@ import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { prisma } from '../db.js';
-import { auth } from '../auth.js';
 
-export const authRouter = Router();
+export const authRouter: Router = Router();
 
 const SignupSchema = z.object({
   email:    z.string().email(),
@@ -20,7 +19,7 @@ authRouter.post('/signup', async (req, res, next) => {
   try {
     const parsed = SignupSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.errors[0].message });
+      res.status(400).json({ error: parsed.error.errors[0]?.message ?? 'Erreur de validation' });
       return;
     }
     const { email, password, name } = parsed.data;
@@ -43,7 +42,7 @@ authRouter.post('/login', async (req, res, next) => {
   try {
     const parsed = LoginSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.errors[0].message });
+      res.status(400).json({ error: parsed.error.errors[0]?.message ?? 'Erreur de validation' });
       return;
     }
     const { email, password } = parsed.data;
@@ -67,4 +66,3 @@ authRouter.post('/login', async (req, res, next) => {
   }
 });
 
-authRouter.use('/:rest(.*)', auth);

@@ -16,25 +16,25 @@ import {
 
 import Column from './board/Column';
 import { useSocket } from '@/providers/SocketProvider';
-import type { Card as CardType } from '@/types';
+import type { Card as CardType, Board as BoardType } from '@/types';
 
 export function Board({ boardId = 'demo' }: { boardId?: string }) {
   const socket = useSocket();
 
   /* ------------------------------ Data ------------------------------ */
-  const utils = trpc.useUtils();
-  const { data: board } = trpc.board.get.useQuery({ boardId });
+  const utils = (trpc as any).useUtils();
+  const { data: board } = (trpc as any).board.get.useQuery({ boardId });
 
-  const move = trpc.board.moveCard.useMutation({
+  const move = (trpc as any).board.moveCard.useMutation({
     onMutate: async (input: any) => {
-      await utils.board.get.cancel();
-      const prev = utils.board.get.getData({ boardId });
+      await (utils.board.get as any).cancel();
+      const prev = (utils.board.get as any).getData({ boardId });
 
-      utils.board.get.setData({ boardId }, (draft: any) => {
+      (utils.board.get as any).setData({ boardId }, (draft: BoardType | undefined) => {
         if (!draft) return draft;
-        const src = draft.columns.find((c: any) => c.id === input.from)!;
-        const dst = draft.columns.find((c: any) => c.id === input.to)!;
-        const idx = src.cards.findIndex((c: any) => c.id === input.cardId);
+        const src = draft.columns.find((c) => c.id === input.from)!;
+        const dst = draft.columns.find((c) => c.id === input.to)!;
+        const idx = src.cards.findIndex((c) => c.id === input.cardId);
         const [card] = src.cards.splice(idx, 1);
         dst.cards.splice(input.pos, 0, card);
         return draft;
@@ -42,16 +42,16 @@ export function Board({ boardId = 'demo' }: { boardId?: string }) {
 
       return { prev };
     },
-    onError: (_e, _v, ctx: any) => {
-      if (ctx?.prev) utils.board.get.setData({ boardId }, ctx.prev);
+    onError: (_e: any, _v: any, ctx: any) => {
+      if (ctx?.prev) (utils.board.get as any).setData({ boardId }, ctx.prev);
     },
-    onSettled: () => utils.board.get.invalidate({ boardId }),
+    onSettled: () => (utils.board.get as any).invalidate({ boardId }),
   });
 
   /* --------------------------- Realtime ----------------------------- */
   useState(() => {
     socket.emit('join-board', boardId);
-    const invalidate = () => utils.board.get.invalidate({ boardId });
+    const invalidate = () => (utils.board.get as any).invalidate({ boardId });
     socket.on('card:moved', invalidate);
     return () => {
       socket.emit('leave-board', boardId);
@@ -76,7 +76,7 @@ export function Board({ boardId = 'demo' }: { boardId?: string }) {
 
     const pos =
       over.data.current?.isContainer
-        ? board?.columns.find((c) => c.id === toCol)?.cards.length ?? 0
+        ? board?.columns.find((c: any) => c.id === toCol)?.cards.length ?? 0
         : (over.data.current?.index as number);
 
     move.mutate({
@@ -96,20 +96,20 @@ export function Board({ boardId = 'demo' }: { boardId?: string }) {
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={({ active }) => {
-        const col = board.columns.find((c) =>
-          c.cards.some((x) => x.id === active.id),
+        const col = board.columns.find((c: any) =>
+          c.cards.some((x: any) => x.id === active.id),
         );
-        setActiveCard(col?.cards.find((x) => x.id === active.id) ?? null);
+        setActiveCard(col?.cards.find((x: any) => x.id === active.id) ?? null);
       }}
       onDragCancel={() => setActiveCard(null)}
       onDragEnd={onDragEnd}
     >
       <div className="flex gap-4 overflow-x-auto p-4">
-        {board.columns.map((col) => (
+        {board.columns.map((col: any) => (
           <SortableContext
             key={col.id}
             id={col.id}
-            items={col.cards.map((c) => c.id)}
+            items={col.cards.map((c: any) => c.id)}
             strategy={verticalListSortingStrategy}
           >
             <Column column={col} />
