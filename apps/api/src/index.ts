@@ -40,7 +40,7 @@ const io = new Server(server, {
 app.set("port", process.env.PORT ?? 4000)
 
 /* ───────────── Views (Pug) ───────────── */
- 
+
 app.engine("pug", (pug as any).__express)
 app.set("views", path.join(import.meta.dirname, "..", "views"))
 app.set("view engine", "pug")
@@ -65,17 +65,12 @@ app.use("/", authRouter)
 /* ───────────── Rate-limit (auth only) ─── */
 app.use(
   "/api/auth",
-  rateLimit({ 
-    windowMs: 60_000, 
-    max: 30,
-    trustProxy: false // Fix trust proxy warning in dev
+  rateLimit({
+    windowMs: 60_000,
+    max: 30
   }), // 30 req/min IP
 )
 
-/* ───────────── Auth.js — WILDCARD NOMMÉ ──
- * Express 5 utilise path-to-regexp v8 → `*` seul
- * n’est plus autorisé. Il faut :rest(.*)
- */
 app.use("/api/auth", ExpressAuth(authConfig))
 
 /* ───────────── tRPC ────────────── */
