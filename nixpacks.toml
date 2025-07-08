@@ -1,14 +1,14 @@
-[variables]
-NIXPACKS_METADATA = "mini-trello-monorepo"
+  [variables]
+  NIXPACKS_METADATA = "mini-trello-monorepo"
 
-[phases.setup]
-nixPkgs = ["nodejs-18_x", "pnpm"]
+  [phases.setup]
+  nixPkgs = ["nodejs-18_x", "pnpm"]
 
-[phases.install]
-cmds = ["pnpm install"]
+  [phases.install]
+  cmds = ["pnpm install"]
 
-[phases.build]
-cmds = ["pnpm build"]
+  [phases.build]
+  cmds = ["pnpm build"]
 
-[start]
-cmd = "pnpm start"
+  [start]
+  cmd = "pnpm start"
