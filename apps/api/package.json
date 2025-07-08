@@ -6,8 +6,10 @@
   "scripts": {
     "dev":   "tsx watch src/index.ts",
     "build": "rimraf dist && tsc -p .",
+    "start": "node dist/index.js",
     "lint":  "eslint .",
-    "seed":  "tsx prisma/seed.ts"
+    "seed":  "tsx prisma/seed.ts",
+    "postbuild": "prisma generate && prisma migrate deploy"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

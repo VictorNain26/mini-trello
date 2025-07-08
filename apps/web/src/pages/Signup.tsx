@@ -88,121 +88,173 @@ export default function Signup() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-blue-50 to-indigo-100 p-4 overflow-hidden">
-      <div className="w-full max-w-lg space-y-8">
-        {/* Logo et titre */}
-        <div className="flex flex-col items-center space-y-3">
-          <div className="flex items-center space-x-3">
-            <div className="p-3 bg-emerald-600 rounded-xl shadow-lg">
-              <Trello className="h-10 w-10 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-indigo-100 overflow-y-auto">
+      <div className="flex min-h-screen">
+        {/* Section gauche - Branding */}
+        <div className="hidden lg:flex lg:w-1/2 xl:w-2/5 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 p-8 xl:p-12 items-center justify-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative z-10 text-center space-y-8 max-w-md">
+            <div className="flex justify-center">
+              <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl shadow-2xl">
+                <Trello className="h-16 w-16 text-white" />
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800">Mini Trello</h1>
+            <div className="space-y-4">
+              <h1 className="text-4xl xl:text-5xl font-bold text-white leading-tight">
+                Rejoignez Mini Trello
+              </h1>
+              <p className="text-xl text-emerald-100 leading-relaxed">
+                Commencez à organiser vos projets dès aujourd'hui
+              </p>
+            </div>
+            <div className="space-y-3 text-emerald-100">
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <span>Création de compte gratuite</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <span>Accès immédiat à tous les outils</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+                <span>Collaboration sans limites</span>
+              </div>
+            </div>
           </div>
-          <p className="text-lg text-gray-600 font-medium">Créez votre compte et commencez à organiser</p>
         </div>
 
-        <Card className="shadow-2xl border border-gray-200/80 backdrop-blur-sm bg-white/95">
-          <CardHeader className="space-y-2 pb-8">
-            <CardTitle className="text-3xl text-center font-bold text-gray-800">Créer un compte</CardTitle>
-            <CardDescription className="text-center text-lg text-gray-600">
-              Rejoignez-nous et organisez vos projets efficacement
-            </CardDescription>
-          </CardHeader>
-          
-          <form onSubmit={submit}>
-            <CardContent className="space-y-6 px-8">
-              <div className="space-y-3">
-                <Label htmlFor="name" className="text-base font-semibold text-gray-700">Nom (optionnel)</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Votre nom"
-                  value={name}
-                  onChange={(e) => setName(e.target.value.trim())}
-                  className="h-12 text-base border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-base font-semibold text-gray-700">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="votre@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value.trim())}
-                  required
-                  className="h-12 text-base border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
-                />
-              </div>
-              
-              <div className="space-y-3">
-                <Label htmlFor="password" className="text-base font-semibold text-gray-700">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Minimum 6 caractères"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="h-12 text-base border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
-                />
-                <p className="text-sm text-gray-600 font-medium">
-                  Le mot de passe doit contenir au moins 6 caractères
-                </p>
-              </div>
-
-              {error && (
-                <div className="flex items-center space-x-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <p className="text-base text-red-700 font-medium">{error}</p>
+        {/* Section droite - Formulaire */}
+        <div className="w-full lg:w-1/2 xl:w-3/5 flex items-center justify-center p-4 lg:p-8">
+          <div className="w-full max-w-md space-y-6">
+            {/* Header mobile */}
+            <div className="lg:hidden text-center space-y-3 mb-8">
+              <div className="flex justify-center">
+                <div className="p-3 bg-emerald-600 rounded-xl shadow-lg">
+                  <Trello className="h-10 w-10 text-white" />
                 </div>
-              )}
-
-              {success && (
-                <div className="flex items-center space-x-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <p className="text-base text-green-700 font-medium">Compte créé avec succès ! Redirection...</p>
-                </div>
-              )}
-            </CardContent>
-            
-            <CardFooter className="flex flex-col space-y-6 px-8 pb-8">
-              <Button 
-                type="submit" 
-                className="w-full h-12 text-base font-semibold bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-200 transition-all shadow-lg" 
-                disabled={submitting || success}
-              >
-                {submitting ? 'Création en cours...' : success ? 'Compte créé !' : 'Créer le compte'}
-              </Button>
-              
-              <div className="text-center text-base text-gray-600">
-                Déjà un compte ?{' '}
-                <Link 
-                  to="/login" 
-                  className="text-emerald-600 hover:text-emerald-700 hover:underline font-semibold transition-colors"
-                >
-                  Se connecter
-                </Link>
               </div>
-            </CardFooter>
-          </form>
-        </Card>
-
-        {/* Avantages */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardContent className="pt-6">
-            <div className="text-center text-sm text-blue-700 space-y-2">
-              <p className="font-medium">✨ Avec Mini Trello, vous pouvez :</p>
-              <ul className="text-xs space-y-1">
-                <li>📋 Créer des tableaux personnalisés</li>
-                <li>🎯 Organiser vos tâches par colonnes</li>
-                <li>🚀 Collaborer en temps réel</li>
-                <li>💡 Suivre l'avancement de vos projets</li>
-              </ul>
+              <h1 className="text-2xl font-bold text-gray-800">Mini Trello</h1>
             </div>
-          </CardContent>
-        </Card>
+
+            <Card className="shadow-xl border border-gray-200/80 backdrop-blur-sm bg-white/95">
+              <CardHeader className="space-y-2 pb-6">
+                <CardTitle className="text-2xl lg:text-3xl text-center font-bold text-gray-800">
+                  Créer un compte
+                </CardTitle>
+                <CardDescription className="text-center text-gray-600">
+                  Rejoignez notre communauté
+                </CardDescription>
+              </CardHeader>
+              
+              <form onSubmit={submit}>
+                <CardContent className="space-y-4 px-6 lg:px-8">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Nom (optionnel)</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Votre nom"
+                      value={name}
+                      onChange={(e) => setName(e.target.value.trim())}
+                      className="h-11 text-sm border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="votre@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value.trim())}
+                      required
+                      className="h-11 text-sm border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-sm font-semibold text-gray-700">Mot de passe</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Minimum 6 caractères"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="h-11 text-sm border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+                    />
+                    <p className="text-xs text-gray-600">
+                      Le mot de passe doit contenir au moins 6 caractères
+                    </p>
+                  </div>
+
+                  {error && (
+                    <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0" />
+                      <p className="text-sm text-red-700 font-medium">{error}</p>
+                    </div>
+                  )}
+
+                  {success && (
+                    <div className="flex items-center space-x-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
+                      <p className="text-sm text-green-700 font-medium">Compte créé avec succès ! Redirection...</p>
+                    </div>
+                  )}
+                </CardContent>
+                
+                <CardFooter className="flex flex-col space-y-4 px-6 lg:px-8 pb-6">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-11 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-200 transition-all shadow-lg" 
+                    disabled={submitting || success}
+                  >
+                    {submitting ? 'Création en cours...' : success ? 'Compte créé !' : 'Créer le compte'}
+                  </Button>
+                  
+                  <div className="text-center text-sm text-gray-600">
+                    Déjà un compte ?{' '}
+                    <Link 
+                      to="/login" 
+                      className="text-emerald-600 hover:text-emerald-700 hover:underline font-semibold transition-colors"
+                    >
+                      Se connecter
+                    </Link>
+                  </div>
+                </CardFooter>
+              </form>
+            </Card>
+
+            {/* Avantages */}
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 shadow-md">
+              <CardContent className="p-4 lg:p-6">
+                <div className="text-center text-sm text-blue-700 space-y-2">
+                  <p className="font-medium">✨ Avec Mini Trello, vous pouvez :</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center space-x-1">
+                      <span>📋</span>
+                      <span>Tableaux personnalisés</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <span>🎯</span>
+                      <span>Organisation par colonnes</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <span>🚀</span>
+                      <span>Collaboration temps réel</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <span>💡</span>
+                      <span>Suivi des projets</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

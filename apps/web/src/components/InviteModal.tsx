@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Mail, UserPlus, Send, AlertCircle } from 'lucide-react';
+import { X, Mail, UserPlus, Send, AlertCircle, Shield, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ interface InviteModalProps {
 
 export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSuccess }: InviteModalProps) {
   const [email, setEmail] = useState('');
+  const [role, setRole] = useState<'editor' | 'reader'>('reader');
   const [loading, setLoading] = useState(false);
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -38,7 +39,10 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
       const response = await fetch(`http://localhost:4000/api/boards/${boardId}/invite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+        body: JSON.stringify({ 
+          email: email.trim().toLowerCase(),
+          role: role
+        }),
         credentials: 'include'
       });
 
@@ -47,6 +51,7 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
       if (response.ok) {
         toast.success(data.message || 'Invitation envoyée !');
         setEmail('');
+        setRole('reader');
         onInviteSuccess();
         onClose();
       } else if (data.requiresSignup) {
@@ -110,6 +115,49 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
                 <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <span>La personne invitée doit avoir un compte pour rejoindre le board. Si elle n'en a pas, elle devra s'inscrire d'abord.</span>
               </p>
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+                <Shield className="h-5 w-5 text-blue-600" />
+                <span>Rôle</span>
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole('reader')}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    role === 'reader' 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <User className="h-4 w-4 text-gray-600" />
+                    <div className="text-left">
+                      <div className="font-medium text-gray-900">Lecteur</div>
+                      <div className="text-xs text-gray-600">Peut voir le board</div>
+                    </div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('editor')}
+                  className={`p-3 rounded-lg border-2 transition-all ${
+                    role === 'editor' 
+                      ? 'border-blue-500 bg-blue-50' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Shield className="h-4 w-4 text-blue-600" />
+                    <div className="text-left">
+                      <div className="font-medium text-gray-900">Éditeur</div>
+                      <div className="text-xs text-gray-600">Peut modifier le board</div>
+                    </div>
+                  </div>
+                </button>
+              </div>
             </div>
 
             <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">

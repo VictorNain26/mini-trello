@@ -3,12 +3,16 @@ import { useAuth } from '@/hooks/useAuth';
 import { PropsWithChildren } from 'react';
 
 export default function RequireAuth({ children }: PropsWithChildren) {
-  const { user, loading, isAuthPage } = useAuth();
+  const { user, loading, initialized, isAuthPage } = useAuth();
   const loc = useLocation();
 
   // Don't check auth on login/signup pages
   if (isAuthPage) {
     return <>{children}</>;
+  }
+
+  if (!initialized) {
+    return null;
   }
 
   if (loading) {

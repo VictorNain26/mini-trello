@@ -1,291 +1,324 @@
 # 🚀 Mini Trello
 
-> Une application Kanban moderne et collaborative inspirée de Trello, construite avec les dernières technologies web.
+> Application Kanban collaborative et moderne avec système de rôles avancé, construite avec React, Node.js et PostgreSQL.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![tRPC](https://img.shields.io/badge/tRPC-2596BE?style=for-the-badge&logo=trpc&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)
+
+## 🌐 Application Déployée
+
+**🔗 [Demo Live](https://web-production-b1e9.up.railway.app)**
+
+- **Frontend :** https://web-production-b1e9.up.railway.app
+- **API :** https://api-production-e29c.up.railway.app
 
 ## ✨ Fonctionnalités
 
-- 📋 **Tableaux Kanban** - Créez et organisez vos projets avec des colonnes personnalisables
-- 🎯 **Cartes de tâches** - Drag & drop intuitif pour réorganiser les tâches
-- 👥 **Collaboration temps réel** - Voyez qui travaille sur quoi en direct
-- 🔐 **Authentification sécurisée** - Inscription/connexion avec Auth.js
-- 📱 **Design responsive** - Interface moderne avec TailwindCSS v4
-- ⚡ **Performance optimisée** - API tRPC type-safe et cache Redis
+### 📋 Gestion de Projets
+- **Tableaux Kanban** - Créez et organisez vos projets avec des colonnes personnalisables
+- **Drag & Drop** - Interface intuitive avec @dnd-kit pour réorganiser cartes et colonnes
+- **Colonnes flexibles** - Taille automatique selon le contenu avec indicateurs de défilement
+- **Cartes détaillées** - Modal d'édition avec support markdown
 
-## 🏗️ Architecture
+### 👥 Collaboration Avancée
+- **Système de rôles granulaire** :
+  - **Propriétaire** - Contrôle total du tableau
+  - **Éditeur** - Peut modifier colonnes et cartes
+  - **Lecteur** - Accès en lecture seule
+- **Invitations utilisateur** - Invitez par email avec rôle spécifique
+- **Protection anti-auto-invitation** - Sécurité renforcée
+- **Temps réel** - Collaboration live avec Socket.io *(à venir)*
 
-### Stack Technique
+### 🔐 Authentification & Sécurité
+- **Auth.js** - Système d'authentification robuste
+- **Sessions sécurisées** - Gestion d'état avec cookies httpOnly
+- **Protection CSRF** - Tokens anti-forgery
+- **Permissions strictes** - Vérifications côté frontend et backend
 
-**Frontend**
-- **React 19** - Framework UI avec les dernières fonctionnalités
-- **TypeScript** - Typage statique pour un code robuste
+### 📱 Interface Moderne
+- **Design responsive** - Mobile-first avec TailwindCSS v4
+- **UX optimisée** - Pages login/signup horizontales sur desktop
+- **Indicateurs visuels** - États de chargement sans clignotement
+- **Accessibilité** - Navigation clavier et ARIA
+
+## 🏗️ Architecture Technique
+
+### Stack Frontend
+- **React 19** - Dernières fonctionnalités React
+- **TypeScript** - Typage statique strict
 - **Vite** - Build tool ultra-rapide
-- **TailwindCSS v4** - Framework CSS utility-first
-- **@dnd-kit** - Drag & drop accessible et performant
+- **TailwindCSS v4** - Framework CSS moderne
 - **tRPC** - API type-safe de bout en bout
-- **Zustand** - Gestion d'état légère et simple
+- **@dnd-kit** - Drag & drop accessible
+- **Zustand** - Gestion d'état simple
 
-**Backend**
-- **Node.js** + **Express 5** - Serveur web moderne
-- **tRPC** - API typée avec React Query
-- **Prisma** - ORM moderne pour PostgreSQL
-- **Auth.js** - Authentification flexible et sécurisée
-- **Socket.io** - WebSocket pour les fonctionnalités temps réel
-- **Redis** - Cache et sessions
+### Stack Backend
+- **Node.js + Express** - Serveur web avec middleware custom
+- **tRPC** - API typée avec validation Zod
+- **Prisma ORM** - Base de données avec migrations
+- **Auth.js** - Authentification multi-providers
+- **PostgreSQL** - Base de données relationnelle
+- **Redis** - Cache et sessions *(prévu)*
 
-**Infrastructure**
-- **PostgreSQL** - Base de données relationnelle robuste
-- **Docker** - Containerisation pour le déploiement
-- **Turbo** - Monorepo build system
+### Infrastructure
+- **Railway** - Plateforme de déploiement
+- **Monorepo** - Architecture avec Turbo
 - **pnpm** - Gestionnaire de paquets performant
+- **Docker** - Containerisation pour développement
 
-### Structure du Projet
+## 🚀 Installation Rapide
+
+### Prérequis
+- Node.js >= 20
+- pnpm >= 8
+- Docker (optionnel)
+
+### Démarrage Local
+
+```bash
+# 1. Cloner et installer
+git clone <votre-repo>
+cd mini-trello
+pnpm install
+
+# 2. Configuration environnement
+cp .env.example .env
+# Éditer .env avec vos paramètres
+
+# 3. Base de données
+pnpm docker:up          # Lance PostgreSQL + Redis
+pnpm db migrate dev     # Applique migrations
+pnpm db seed           # Données de test (optionnel)
+
+# 4. Démarrage
+pnpm dev               # API + Web en parallèle
+```
+
+**🎉 Application disponible sur :**
+- Frontend : http://localhost:5173
+- API : http://localhost:4000
+
+## 📋 Scripts Disponibles
+
+### Développement
+```bash
+pnpm dev              # Démarre API + Web
+pnpm build            # Build production
+pnpm check            # Vérifications TypeScript
+pnpm lint             # ESLint + Prettier
+pnpm format           # Formatage automatique
+```
+
+### Base de Données
+```bash
+pnpm db generate      # Génère client Prisma
+pnpm db migrate dev   # Migration développement
+pnpm db studio        # Interface admin
+pnpm db seed          # Données de test
+```
+
+### Docker
+```bash
+pnpm docker:up        # Services de développement
+pnpm docker:down      # Arrêt des services
+```
+
+## 🗂️ Structure du Projet
 
 ```
 mini-trello/
 ├── apps/
-│   ├── api/                 # Backend Express + tRPC
+│   ├── api/                    # Backend Express + tRPC
 │   │   ├── src/
-│   │   │   ├── routers/     # Routes tRPC
-│   │   │   ├── middleware/  # Auth, erreurs, etc.
-│   │   │   ├── realtime/    # WebSocket handlers
-│   │   │   └── auth.ts      # Configuration Auth.js
-│   │   └── prisma/          # Schéma et migrations DB
-│   └── web/                 # Frontend React
+│   │   │   ├── routers/        # Routes tRPC (board, card, etc.)
+│   │   │   ├── middleware/     # Auth et gestion erreurs
+│   │   │   ├── config/         # Configuration Auth.js
+│   │   │   └── index.ts        # Serveur principal
+│   │   ├── prisma/
+│   │   │   ├── schema.prisma   # Modèle de données
+│   │   │   ├── migrations/     # Migrations DB
+│   │   │   └── seed.ts         # Données de test
+│   │   └── railway.json        # Config déploiement
+│   │
+│   └── web/                    # Frontend React
 │       ├── src/
-│       │   ├── components/  # Composants réutilisables
-│       │   ├── features/    # Fonctionnalités métier
-│       │   ├── pages/       # Pages de l'application
-│       │   └── providers/   # Contextes React
-├── packages/
-│   ├── ui/                  # Composants UI partagés
-│   ├── db/                  # Client Prisma partagé
-│   └── config/              # Configurations partagées
-└── docker/                  # Configuration Docker
+│       │   ├── components/     # Composants UI
+│       │   │   ├── DraggableColumn.tsx
+│       │   │   ├── DraggableCard.tsx
+│       │   │   ├── InviteModal.tsx
+│       │   │   └── RequireAuth.tsx
+│       │   ├── pages/          # Pages applicatives
+│       │   │   ├── Dashboard.tsx
+│       │   │   ├── Board.tsx
+│       │   │   ├── Login.tsx
+│       │   │   └── Signup.tsx
+│       │   ├── hooks/          # Hooks custom
+│       │   │   └── useAuth.ts
+│       │   └── lib/            # Utilitaires
+│       │       └── trpc.ts
+│       └── railway.json
+│
+├── docker/                     # Configuration Docker
+├── DEPLOYMENT.md              # Guide de déploiement
+├── CLAUDE.md                  # Instructions développement
+└── railway-vars.sh           # Script config Railway
 ```
 
-## 🚀 Installation et Démarrage
+## 🎯 Fonctionnalités Principales
 
-### Prérequis
+### Gestion des Tableaux
+- **Création/édition** de tableaux Kanban
+- **Colonnes dynamiques** avec ordre personnalisable
+- **Cartes avec métadonnées** et modal d'édition
+- **Drag & drop** fluide et accessible
 
-- **Node.js** >= 20
-- **pnpm** >= 8
-- **Docker** (optionnel, pour la base de données)
+### Système de Permissions
+```typescript
+// Rôles disponibles
+type Role = 'owner' | 'editor' | 'reader'
 
-### Installation
-
-```bash
-# Cloner le repository
-git clone <votre-repo-url>
-cd mini-trello
-
-# Installer les dépendances
-pnpm install
-
-# Configurer l'environnement
-cp .env.example .env
-# Éditer .env avec vos paramètres
+// Permissions par rôle
+owner   -> Tout (suppression tableau, gestion membres)
+editor  -> Modification contenu (colonnes, cartes)
+reader  -> Lecture seule (visualisation uniquement)
 ```
 
-### Configuration
+### Sécurité Renforcée
+- ✅ **Auto-invitation bloquée** - Impossible de s'inviter soi-même
+- ✅ **Permissions strictes** - Vérifications frontend + backend
+- ✅ **API sécurisée** - Tous endpoints protégés par rôles
+- ✅ **Validation données** - Zod côté serveur
 
-Créez un fichier `.env` à la racine :
+## 🔄 API tRPC
+
+### Endpoints Principaux
+
+```typescript
+// Boards
+board.getAll()                    // Liste tableaux utilisateur
+board.getById(id)                 // Détails tableau + membres
+board.create(data)                // Nouveau tableau
+board.inviteUser(boardId, email, role)  // Invitation membre
+
+// Columns
+column.create(boardId, title)     // Nouvelle colonne
+column.update(id, title)          // Modification colonne
+column.delete(id)                 // Suppression (owner/editor)
+
+// Cards
+card.create(columnId, title)      // Nouvelle carte
+card.update(id, data)             // Modification carte
+card.delete(id)                   // Suppression (owner/editor)
+card.move(id, columnId, order)    // Déplacement drag&drop
+```
+
+## 🚀 Déploiement Production
+
+### Railway (Recommandé)
+L'application est configurée pour Railway avec :
+- **Auto-deployment** depuis GitHub
+- **Services séparés** API + Web
+- **Base de données** PostgreSQL managed
+- **Variables d'environnement** sécurisées
+
+Voir [DEPLOYMENT.md](DEPLOYMENT.md) pour le guide complet.
+
+### Variables d'Environnement
 
 ```env
-# Base de données
+# Production (Railway)
+NODE_ENV=production
+DATABASE_URL=postgresql://...
+AUTH_SECRET=your-32-character-secret-key
+CLIENT_ORIGIN=https://web-production-b1e9.up.railway.app
+
+# Développement local
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/mini_trello
-
-# Authentification (générer une clé secrète de 32 caractères)
-AUTH_SECRET=your-32-character-secret-key-here
-
-# Frontend
+AUTH_SECRET=your-32-character-secret-key
 CLIENT_ORIGIN=http://localhost:5173
 ```
 
-### Démarrage en Développement
+## 🧪 Tests et Qualité
 
+### Standards Appliqués
+- ✅ **TypeScript strict** - Zero any, typage complet
+- ✅ **ESLint configuré** - Règles strictes
+- ✅ **Prettier** - Formatage automatique
+- ✅ **Import organization** - Imports triés automatiquement
+
+### Commandes Qualité
 ```bash
-# 1. Démarrer les services (PostgreSQL + Redis)
-docker compose -f docker-compose.dev.yml up -d
-
-# 2. Appliquer les migrations de base de données
-pnpm db migrate dev
-
-# 3. (Optionnel) Alimenter la base avec des données de test
-pnpm db seed
-
-# 4. Démarrer les serveurs de développement
-pnpm dev
-```
-
-🎉 **L'application est maintenant disponible :**
-- **Frontend :** http://localhost:5173
-- **API :** http://localhost:4000
-- **Base de données :** localhost:5432
-
-## 📋 Scripts Disponibles
-
-### Scripts Principaux
-
-```bash
-pnpm dev              # Démarre API + Web en mode développement
-pnpm build            # Build toutes les applications
-pnpm start            # Lance l'environnement Docker complet
-pnpm lint             # Vérifie la qualité du code
 pnpm check            # Vérification TypeScript
+pnpm lint             # ESLint tous fichiers
+pnpm format           # Prettier format
 ```
-
-### Scripts Base de Données
-
-```bash
-pnpm db generate      # Génère le client Prisma
-pnpm db migrate dev   # Crée et applique une migration
-pnpm db migrate deploy # Applique les migrations (production)
-pnpm db studio        # Interface admin Prisma
-pnpm db seed          # Alimente avec des données de test
-```
-
-### Scripts Docker
-
-```bash
-pnpm docker:up        # Lance l'environnement complet
-pnpm docker:down      # Arrête les conteneurs
-```
-
-## 🐳 Déploiement avec Docker
-
-### Développement
-
-```bash
-# Services uniquement (recommandé pour le dev)
-docker compose -f docker-compose.dev.yml up -d
-```
-
-### Production
-
-```bash
-# Application complète
-docker compose -f docker/docker-compose.yml up --build -d
-```
-
-## 🗄️ Base de Données
-
-### Schéma
-
-- **User** - Utilisateurs avec authentification
-- **Board** - Tableaux Kanban avec propriétaire
-- **Column** - Colonnes ordonnées par tableau
-- **Card** - Cartes de tâches ordonnées par colonne
-
-### Migrations
-
-```bash
-# Créer une nouvelle migration
-pnpm db migrate dev --name description-de-la-migration
-
-# Appliquer en production
-pnpm db migrate deploy
-```
-
-## 🔧 Fonctionnalités Temps Réel
-
-L'application utilise **Socket.io** pour :
-
-- 👥 **Présence utilisateur** - Voir qui est en ligne sur un tableau
-- 🔄 **Synchronisation** - Mise à jour en temps réel des modifications
-- 🎯 **Curseurs collaboratifs** - Position des autres utilisateurs
-
-## 🎨 Interface Utilisateur
-
-### Design System
-
-- **TailwindCSS v4** - Styles utilitaires modernes
-- **Responsive design** - Mobile-first
-- **Dark mode ready** - Support thème sombre
-- **Accessibilité** - Navigation clavier et lecteurs d'écran
-
-### Animations
-
-- **Framer Motion** - Animations fluides
-- **@dnd-kit** - Drag & drop accessible
-- **Micro-interactions** - Feedback utilisateur
-
-## 🔒 Sécurité
-
-- ✅ **Auth.js** - Authentification sécurisée
-- ✅ **bcrypt** - Hashage des mots de passe
-- ✅ **CORS** - Protection cross-origin
-- ✅ **Rate limiting** - Protection anti-spam
-- ✅ **Validation** - Zod pour la validation des données
-- ✅ **Types safety** - TypeScript de bout en bout
-
-## 🚀 Performance
-
-- ⚡ **tRPC** - API typée sans surcharge
-- ⚡ **React Query** - Cache intelligent côté client
-- ⚡ **Redis** - Cache serveur et sessions
-- ⚡ **Prisma** - ORM optimisé avec connexion pooling
-- ⚡ **Vite** - Build ultra-rapide
-- ⚡ **Code splitting** - Chargement à la demande
 
 ## 📚 Documentation
 
-### Développement
+- **[Guide Déploiement](DEPLOYMENT.md)** - Railway setup complet
+- **[Instructions Claude](CLAUDE.md)** - Guide développement IA
+- **[Architecture API](apps/api/README.md)** - Documentation backend
+- **[Frontend Guide](apps/web/README.md)** - Documentation React
 
-- [Architecture détaillée](docs/architecture.md)
-- [Guide de contribution](docs/contributing.md)
-- [API Reference](docs/api.md)
-
-### Déploiement
-
-- [Guide de déploiement](docs/deployment.md)
-- [Configuration production](docs/production.md)
-- [Monitoring](docs/monitoring.md)
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! Voici comment contribuer :
-
-1. **Fork** le projet
-2. **Créer** une branche pour votre fonctionnalité (`git checkout -b feature/amazing-feature`)
-3. **Commit** vos changements (`git commit -m 'Add amazing feature'`)
-4. **Push** vers la branche (`git push origin feature/amazing-feature`)
-5. **Ouvrir** une Pull Request
+## 🛠️ Contribution
 
 ### Standards de Code
+1. **TypeScript strict** obligatoire
+2. **Pas de `any`** - Typage explicite
+3. **ESLint zero warnings** - Qualité code
+4. **Tests unitaires** pour nouvelles fonctionnalités
+5. **Documentation** mise à jour
 
-- ✅ **TypeScript strict** activé
-- ✅ **ESLint** configuré
-- ✅ **Prettier** pour le formatage
-- ✅ **Tests** requis pour les nouvelles fonctionnalités
-- ✅ **Documentation** mise à jour
+### Process de Contribution
+```bash
+# 1. Fork du projet
+git checkout -b feature/nouvelle-fonctionnalite
+
+# 2. Développement
+pnpm check     # Vérifications TypeScript
+pnpm lint      # Qualité code
+
+# 3. Commit et PR
+git commit -m "feat: description"
+git push origin feature/nouvelle-fonctionnalite
+```
+
+## 🔮 Roadmap
+
+### Version Actuelle (v1.0)
+- ✅ Système de rôles complet
+- ✅ Interface responsive
+- ✅ Déploiement Railway
+- ✅ Sécurité renforcée
+
+### Prochaines Versions
+- 🔄 **Socket.io temps réel** - Collaboration live
+- 📊 **Analytics** - Métriques utilisation
+- 🎨 **Thèmes** - Mode sombre et customisation
+- 🔍 **Recherche** - Filtrage avancé tableaux/cartes
+- 📎 **Attachements** - Upload fichiers cartes
+- 🔔 **Notifications** - Alertes temps réel
 
 ## 📄 Licence
 
-Ce projet est sous licence [MIT](LICENSE).
+MIT License - Voir [LICENSE](LICENSE) pour détails
 
-## 👥 Équipe
+## 🤝 Crédits
 
-- **Développeur Principal** - [Votre nom](https://github.com/votre-username)
-
-## 🙏 Remerciements
-
-- [Trello](https://trello.com) pour l'inspiration
-- [Vercel](https://vercel.com) pour les outils de développement
-- [Prisma](https://prisma.io) pour l'excellent ORM
-- [Tailwind](https://tailwindcss.com) pour le framework CSS
+- **Inspiration :** [Trello](https://trello.com) pour l'UX Kanban
+- **Stack :** [T3 Stack](https://create.t3.gg/) pour l'architecture
+- **Design :** [TailwindUI](https://tailwindui.com/) pour les composants
 
 ---
 
 <div align="center">
 
-**[🌐 Demo Live](https://votre-demo-url.com)** • **[📖 Documentation](https://docs.votre-app.com)** • **[🐛 Signaler un Bug](https://github.com/votre-username/mini-trello/issues)**
+**[🌐 Demo Live](https://web-production-b1e9.up.railway.app)** • **[📖 Déploiement](DEPLOYMENT.md)** • **[🐛 Issues](https://github.com/VictorNain26/mini-trello/issues)**
 
-Fait avec ❤️ et beaucoup de ☕
+*Développé avec ❤️ et optimisé pour Claude Code*
 
 </div>

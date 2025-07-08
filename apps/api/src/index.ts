@@ -167,8 +167,8 @@ app.get('/api/boards', async (req: any, res: any) => {
     });
 
     const boards = {
-      owned: ownedBoards.map(board => ({ ...board, isOwner: true })),
-      shared: sharedBoards.map(board => ({ ...board, isOwner: false }))
+      owned: ownedBoards.map((board: any) => ({ ...board, isOwner: true })),
+      shared: sharedBoards.map((board: any) => ({ ...board, isOwner: false }))
     };
     return res.json(boards);
   } catch (error) {
@@ -325,9 +325,36 @@ app.post('/api/boards/:boardId/columns', async (req: any, res: any) => {
   try {
     const { boardId } = req.params;
     const { title } = req.body;
+    const currentUserId = req.session?.user?.id;
+
+    if (!currentUserId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
     if (!title || typeof title !== 'string') {
       return res.status(400).json({ error: 'Title required' });
+    }
+
+    // Check if user has permission to create columns
+    const board = await prisma.board.findUnique({
+      where: { id: boardId },
+      include: {
+        members: {
+          where: { userId: currentUserId }
+        }
+      }
+    });
+
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found' });
+    }
+
+    const isOwner = board.ownerId === currentUserId;
+    const memberRole = board.members[0]?.role;
+    const canCreate = isOwner || memberRole === 'editor';
+
+    if (!canCreate) {
+      return res.status(403).json({ error: 'Insufficient permissions to create column' });
     }
 
     // Get next order
@@ -375,6 +402,38 @@ app.put('/api/columns/:id', async (req: any, res: any) => {
 app.delete('/api/columns/:id', async (req: any, res: any) => {
   try {
     const { id } = req.params;
+    const currentUserId = req.session?.user?.id;
+
+    if (!currentUserId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Find column and check permissions
+    const column = await prisma.column.findUnique({
+      where: { id },
+      include: {
+        board: {
+          include: {
+            members: {
+              where: { userId: currentUserId }
+            }
+          }
+        }
+      }
+    });
+
+    if (!column) {
+      return res.status(404).json({ error: 'Column not found' });
+    }
+
+    // Check if user has permission (owner or editor role)
+    const isOwner = column.board.ownerId === currentUserId;
+    const memberRole = column.board.members[0]?.role;
+    const canDelete = isOwner || memberRole === 'editor';
+
+    if (!canDelete) {
+      return res.status(403).json({ error: 'Insufficient permissions to delete column' });
+    }
     
     await prisma.column.delete({ where: { id } });
     return res.json({ success: true });
@@ -389,9 +448,40 @@ app.post('/api/columns/:columnId/cards', async (req: any, res: any) => {
   try {
     const { columnId } = req.params;
     const { title } = req.body;
+    const currentUserId = req.session?.user?.id;
+
+    if (!currentUserId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
     if (!title || typeof title !== 'string') {
       return res.status(400).json({ error: 'Title required' });
+    }
+
+    // Check if user has permission to create cards
+    const column = await prisma.column.findUnique({
+      where: { id: columnId },
+      include: {
+        board: {
+          include: {
+            members: {
+              where: { userId: currentUserId }
+            }
+          }
+        }
+      }
+    });
+
+    if (!column) {
+      return res.status(404).json({ error: 'Column not found' });
+    }
+
+    const isOwner = column.board.ownerId === currentUserId;
+    const memberRole = column.board.members[0]?.role;
+    const canCreate = isOwner || memberRole === 'editor';
+
+    if (!canCreate) {
+      return res.status(403).json({ error: 'Insufficient permissions to create card' });
     }
 
     // Get next order
@@ -457,6 +547,42 @@ app.put('/api/cards/:id', async (req: any, res: any) => {
 app.delete('/api/cards/:id', async (req: any, res: any) => {
   try {
     const { id } = req.params;
+    const currentUserId = req.session?.user?.id;
+
+    if (!currentUserId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Find card and check permissions
+    const card = await prisma.card.findUnique({
+      where: { id },
+      include: {
+        column: {
+          include: {
+            board: {
+              include: {
+                members: {
+                  where: { userId: currentUserId }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+
+    // Check if user has permission (owner or editor role)
+    const isOwner = card.column.board.ownerId === currentUserId;
+    const memberRole = card.column.board.members[0]?.role;
+    const canDelete = isOwner || memberRole === 'editor';
+
+    if (!canDelete) {
+      return res.status(403).json({ error: 'Insufficient permissions to delete card' });
+    }
     
     await prisma.card.delete({ where: { id } });
     return res.json({ success: true });
@@ -487,7 +613,7 @@ app.put('/api/cards/:id/move', async (req: any, res: any) => {
 app.post('/api/boards/:boardId/invite', async (req: any, res: any) => {
   try {
     const { boardId } = req.params;
-    const { email } = req.body;
+    const { email, role } = req.body;
 
     if (!email || typeof email !== 'string') {
       return res.status(400).json({ error: 'Email required' });
@@ -525,7 +651,7 @@ app.post('/api/boards/:boardId/invite', async (req: any, res: any) => {
             members: {
               some: {
                 userId: currentUserId,
-                role: { in: ['admin', 'owner'] }
+                role: { in: ['editor', 'owner'] }
               }
             }
           }
@@ -548,6 +674,11 @@ app.post('/api/boards/:boardId/invite', async (req: any, res: any) => {
       });
     }
 
+    // Prevent self-invitation
+    if (invitedUser.id === currentUserId) {
+      return res.status(400).json({ error: 'You cannot invite yourself to the board' });
+    }
+
     // Check if user is already a member
     const existingMember = await prisma.boardMember.findUnique({
       where: {
@@ -562,12 +693,12 @@ app.post('/api/boards/:boardId/invite', async (req: any, res: any) => {
       return res.status(400).json({ error: 'User is already a member of this board' });
     }
 
-    // Add user as member
+    // Add user as member with the specified role
     await prisma.boardMember.create({
       data: {
         boardId,
         userId: invitedUser.id,
-        role: 'member'
+        role: role || 'reader'
       }
     });
 
@@ -654,7 +785,7 @@ app.get('/api/boards/:boardId/members', async (req: any, res: any) => {
         role: 'owner',
         joinedAt: board.createdAt
       },
-      ...board.members.map(member => ({
+      ...board.members.map((member: any) => ({
         ...member.user,
         role: member.role,
         joinedAt: member.joinedAt
@@ -694,6 +825,24 @@ app.put('/api/boards/:id', async (req: any, res: any) => {
 app.delete('/api/boards/:id', async (req: any, res: any) => {
   try {
     const { id } = req.params;
+    const currentUserId = req.session?.user?.id;
+
+    if (!currentUserId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Check if user is the owner of the board
+    const board = await prisma.board.findUnique({
+      where: { id }
+    });
+
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found' });
+    }
+
+    if (board.ownerId !== currentUserId) {
+      return res.status(403).json({ error: 'Only the owner can delete the board' });
+    }
     
     await prisma.board.delete({ where: { id } });
     return res.json({ success: true });
@@ -716,6 +865,51 @@ app.put('/api/columns/:id/move', async (req: any, res: any) => {
     return res.json({ success: true });
   } catch (error) {
     console.error('Move column error:', error);
+    return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+/* ───────────── Member management endpoints ─── */
+app.delete('/api/boards/:boardId/members/:userId', async (req: any, res: any) => {
+  try {
+    const { boardId, userId } = req.params;
+    const currentUserId = req.session?.user?.id;
+
+    if (!currentUserId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Check if current user is the owner of the board
+    const board = await prisma.board.findUnique({
+      where: { id: boardId }
+    });
+
+    if (!board) {
+      return res.status(404).json({ error: 'Board not found' });
+    }
+
+    if (board.ownerId !== currentUserId) {
+      return res.status(403).json({ error: 'Only the owner can remove members' });
+    }
+
+    // Cannot remove self
+    if (userId === currentUserId) {
+      return res.status(400).json({ error: 'Cannot remove yourself from the board' });
+    }
+
+    // Remove the member
+    await prisma.boardMember.delete({
+      where: {
+        boardId_userId: {
+          boardId,
+          userId
+        }
+      }
+    });
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Remove member error:', error);
     return res.status(500).json({ error: 'Server error' });
   }
 });

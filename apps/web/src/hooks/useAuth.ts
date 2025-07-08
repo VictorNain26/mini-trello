@@ -11,6 +11,7 @@ export type User = {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   const nav = useNavigate();
   const loc = useLocation();
 
@@ -46,6 +47,7 @@ export function useAuth() {
       setUser(null);
     } finally {
       setLoading(false);
+      setInitialized(true);
     }
   };
 
@@ -144,6 +146,7 @@ export function useAuth() {
   return { 
     user,
     loading,
+    initialized,
     isAuthPage,
     signIn, 
     signOut 

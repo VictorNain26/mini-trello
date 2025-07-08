@@ -10,7 +10,7 @@ interface DraggableCardProps {
   description?: string;
   labels?: string[];
   dueDate?: string;
-  onDelete: () => void;
+  onDelete?: () => void;
   onClick: () => void;
 }
 
@@ -89,18 +89,20 @@ export function DraggableCard({
             <p className="text-sm text-gray-900 flex-1 leading-relaxed font-medium">
               {title}
             </p>
-            <Button
-              data-delete-button
-              variant="ghost"
-              size="sm"
-              className="h-4 w-4 p-0 text-red-400 hover:text-red-600 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
+            {onDelete && (
+              <Button
+                data-delete-button
+                variant="ghost"
+                size="sm"
+                className="h-4 w-4 p-0 text-red-400 hover:text-red-600 ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            )}
           </div>
 
           {/* Description preview */}

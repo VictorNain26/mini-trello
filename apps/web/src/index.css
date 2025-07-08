@@ -67,6 +67,13 @@
 
 @layer utilities {
   .scrollbars-none { scrollbar-width: none; }
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Default Sonner toast styles - minimal customization */

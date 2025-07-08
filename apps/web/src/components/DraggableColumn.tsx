@@ -28,6 +28,7 @@ interface DraggableColumnProps {
   onEditColumn: (newTitle: string) => void;
   onDeleteCard: (cardId: string) => void;
   onCardClick: (card: any) => void;
+  isReadOnly?: boolean;
 }
 
 export function DraggableColumn({
@@ -44,6 +45,7 @@ export function DraggableColumn({
   onEditColumn,
   onDeleteCard,
   onCardClick,
+  isReadOnly = false,
 }: DraggableColumnProps) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
@@ -80,7 +82,7 @@ export function DraggableColumn({
     <div 
       ref={setNodeRef}
       style={style}
-      className={`bg-gray-50 rounded-xl p-4 min-w-[280px] max-w-[350px] w-auto flex-shrink-0 border border-gray-200 shadow-sm ${
+      className={`bg-gray-50 rounded-xl p-4 min-w-[250px] sm:min-w-[280px] w-auto flex-shrink-0 border border-gray-200 shadow-sm self-start ${
         isDragging ? 'shadow-lg ring-2 ring-blue-500 ring-opacity-50' : ''
       }`}
     >
@@ -133,27 +135,29 @@ export function DraggableColumn({
           </div>
         </div>
         
-        <div className="flex items-center space-x-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
-            onClick={() => {
-              setEditTitle(title);
-              setEditingTitle(true);
-            }}
-          >
-            <Edit2 className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 text-red-400 hover:text-red-600"
-            onClick={onDeleteColumn}
-          >
-            <Trash2 className="h-3 w-3" />
-          </Button>
-        </div>
+        {!isReadOnly && (
+          <div className="flex items-center space-x-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
+              onClick={() => {
+                setEditTitle(title);
+                setEditingTitle(true);
+              }}
+            >
+              <Edit2 className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 text-red-400 hover:text-red-600"
+              onClick={onDeleteColumn}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Cards */}
@@ -169,14 +173,14 @@ export function DraggableColumn({
             {...(card.description && { description: card.description })}
             {...(card.labels && { labels: card.labels })}
             {...(card.dueDate && { dueDate: card.dueDate })}
-            onDelete={() => onDeleteCard(card.id)}
+            {...(!isReadOnly && { onDelete: () => onDeleteCard(card.id) })}
             onClick={() => onCardClick(card)}
           />
         ))}
       </DroppableColumn>
 
       {/* Add Card */}
-      {showNewCard ? (
+      {!isReadOnly && showNewCard ? (
         <form 
           onSubmit={(e) => {
             e.preventDefault();
@@ -205,7 +209,7 @@ export function DraggableColumn({
             </Button>
           </div>
         </form>
-      ) : (
+      ) : !isReadOnly ? (
         <Button
           variant="ghost"
           size="sm"
@@ -215,7 +219,7 @@ export function DraggableColumn({
           <Plus className="h-4 w-4 mr-2" />
           Ajouter une carte
         </Button>
-      )}
+      ) : null}
     </div>
   );
 }
