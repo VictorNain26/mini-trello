@@ -69,7 +69,8 @@ app.post('/api/signup', async (req: Request, res: Response) => {
     // Check if user exists
     const existing = await prisma.user.findUnique({ where: { email: data.email } });
     if (existing) {
-      return res.status(400).json({ error: 'Email already exists' });
+      res.status(400).json({ error: 'Email already exists' });
+      return;
     }
     
     // Create user
@@ -82,12 +83,15 @@ app.post('/api/signup', async (req: Request, res: Response) => {
       }
     });
     
-    return res.json({ success: true });
+    res.json({ success: true });
+    return;
   } catch (error) {
     if (error instanceof Error) {
-      return res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message });
+      return;
     }
-    return res.status(400).json({ error: 'Invalid input' });
+    res.status(400).json({ error: 'Invalid input' });
+    return;
   }
 });
 

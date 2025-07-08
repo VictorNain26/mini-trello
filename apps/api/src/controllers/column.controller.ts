@@ -41,10 +41,12 @@ export class ColumnController {
           res.status(403).json({ error: error.message });
           return;
         }
-        return res.status(400).json({ error: error.message });
+        res.status(400).json({ error: error.message });
+        return;
       }
       console.error('Create column error:', error);
-      return res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: 'Server error' });
+      return;
     }
   }
 
@@ -64,7 +66,8 @@ export class ColumnController {
       });
 
       if (!column) {
-        return res.status(404).json({ error: 'Column not found' });
+        res.status(404).json({ error: 'Column not found' });
+        return;
       }
 
       await requireBoardPermission(column.boardId, userId, 'canEdit');
@@ -74,7 +77,8 @@ export class ColumnController {
         data: { title: data.title }
       });
 
-      return res.json({ success: true });
+      res.json({ success: true });
+      return;
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Unauthorized') {
@@ -85,10 +89,12 @@ export class ColumnController {
           res.status(403).json({ error: error.message });
           return;
         }
-        return res.status(400).json({ error: error.message });
+        res.status(400).json({ error: error.message });
+        return;
       }
       console.error('Update column error:', error);
-      return res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: 'Server error' });
+      return;
     }
   }
 
@@ -107,13 +113,15 @@ export class ColumnController {
       });
 
       if (!column) {
-        return res.status(404).json({ error: 'Column not found' });
+        res.status(404).json({ error: 'Column not found' });
+        return;
       }
 
       await requireBoardPermission(column.boardId, userId, 'canEdit');
       
       await prisma.column.delete({ where: { id } });
-      return res.json({ success: true });
+      res.json({ success: true });
+      return;
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Unauthorized') {
@@ -126,7 +134,8 @@ export class ColumnController {
         }
       }
       console.error('Delete column error:', error);
-      return res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: 'Server error' });
+      return;
     }
   }
 
@@ -146,7 +155,8 @@ export class ColumnController {
       });
 
       if (!column) {
-        return res.status(404).json({ error: 'Column not found' });
+        res.status(404).json({ error: 'Column not found' });
+        return;
       }
 
       await requireBoardPermission(column.boardId, userId, 'canEdit');
@@ -156,7 +166,8 @@ export class ColumnController {
         data: { order: data.order }
       });
 
-      return res.json({ success: true });
+      res.json({ success: true });
+      return;
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Unauthorized') {
@@ -169,7 +180,8 @@ export class ColumnController {
         }
       }
       console.error('Move column error:', error);
-      return res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: 'Server error' });
+      return;
     }
   }
 }

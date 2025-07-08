@@ -23,7 +23,8 @@ export class MemberController {
       });
 
       if (!board) {
-        return res.status(403).json({ error: 'Only the board owner can invite users' });
+        res.status(403).json({ error: 'Only the board owner can invite users' });
+        return;
       }
 
       // Find user by email
@@ -32,16 +33,18 @@ export class MemberController {
       });
       
       if (!invitedUser) {
-        return res.status(404).json({ 
+        res.status(404).json({ 
           error: 'User not found',
           requiresSignup: true,
           email: data.email
         });
+        return;
       }
 
       // Prevent self-invitation
       if (invitedUser.id === userId) {
-        return res.status(400).json({ error: 'You cannot invite yourself to the board' });
+        res.status(400).json({ error: 'You cannot invite yourself to the board' });
+        return;
       }
 
       // Check if user is already a member
@@ -55,7 +58,8 @@ export class MemberController {
       });
 
       if (existingMember) {
-        return res.status(400).json({ error: 'User is already a member of this board' });
+        res.status(400).json({ error: 'User is already a member of this board' });
+        return;
       }
 
       // Add user as member with the specified role
@@ -67,20 +71,24 @@ export class MemberController {
         }
       });
 
-      return res.json({ 
+      res.json({ 
         success: true, 
         message: `${invitedUser.name || invitedUser.email} has been added to the board` 
       });
+      return;
 
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Unauthorized') {
-          return res.status(401).json({ error: 'Unauthorized' });
+          res.status(401).json({ error: 'Unauthorized' });
+          return;
         }
-        return res.status(400).json({ error: error.message });
+        res.status(400).json({ error: error.message });
+        return;
       }
       console.error('Invite user error:', error);
-      return res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: 'Server error' });
+      return;
     }
   }
 
@@ -95,7 +103,8 @@ export class MemberController {
       // Check if user has access to this board
       const hasAccess = await checkBoardPermission(boardId, userId, 'canRead');
       if (!hasAccess) {
-        return res.status(403).json({ error: 'Access denied' });
+        res.status(403).json({ error: 'Access denied' });
+        return;
       }
 
       // Get all members including owner
@@ -116,7 +125,8 @@ export class MemberController {
       });
 
       if (!board) {
-        return res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found' });
+        return;
       }
 
       const members = [
@@ -132,14 +142,17 @@ export class MemberController {
         }))
       ];
 
-      return res.json(members);
+      res.json(members);
+      return;
 
     } catch (error) {
       if (error instanceof Error && error.message === 'Unauthorized') {
-        return res.status(401).json({ error: 'Unauthorized' });
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
       }
       console.error('Get board members error:', error);
-      return res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: 'Server error' });
+      return;
     }
   }
 
@@ -157,16 +170,19 @@ export class MemberController {
       });
 
       if (!board) {
-        return res.status(404).json({ error: 'Board not found' });
+        res.status(404).json({ error: 'Board not found' });
+        return;
       }
 
       if (board.ownerId !== userId) {
-        return res.status(403).json({ error: 'Only the owner can remove members' });
+        res.status(403).json({ error: 'Only the owner can remove members' });
+        return;
       }
 
       // Cannot remove self
       if (targetUserId === userId) {
-        return res.status(400).json({ error: 'Cannot remove yourself from the board' });
+        res.status(400).json({ error: 'Cannot remove yourself from the board' });
+        return;
       }
 
       // Remove the member
@@ -179,13 +195,16 @@ export class MemberController {
         }
       });
 
-      return res.json({ success: true });
+      res.json({ success: true });
+      return;
     } catch (error) {
       if (error instanceof Error && error.message === 'Unauthorized') {
-        return res.status(401).json({ error: 'Unauthorized' });
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
       }
       console.error('Remove member error:', error);
-      return res.status(500).json({ error: 'Server error' });
+      res.status(500).json({ error: 'Server error' });
+      return;
     }
   }
 }
