@@ -8,6 +8,7 @@
     "build": "rimraf dist && tsc -p .",
     "start": "node dist/index.js",
     "lint":  "eslint .",
+    "test":  "echo 'No API tests configured yet.'",
     "seed":  "tsx prisma/seed.ts",
     "postbuild": "prisma generate"
   },
