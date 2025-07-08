@@ -1,0 +1,16 @@
+node_modules
+.git
+.env*
+!.env.example
+*.log
+dist
+build
+.turbo
+.DS_Store
+.vscode
+.idea
+coverage
+*.tsbuildinfo
+apps/web/
+docker/
+docs/

@@ -1,14 +1,12 @@
 [variables]
 NIXPACKS_METADATA = "mini-trello-api"
+NODE_ENV = "production"
 
 [phases.setup]
 nixPkgs = ["nodejs-20_x", "pnpm"]
 
-[phases.install]
-cmds = ["cd ../.. && pnpm install --frozen-lockfile"]
-
 [phases.build]
-cmds = ["cd ../.. && pnpm --filter api build"]
+cmds = ["./railway-build.sh"]
 
 [start]
-cmd = "npx prisma migrate deploy && pnpm start"
+cmd = "cd apps/api && npx prisma migrate deploy && node dist/index.js"
