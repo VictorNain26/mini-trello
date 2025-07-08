@@ -124,6 +124,7 @@ Check `.env.example` for required environment variables. The Docker setup uses t
 - Strict TypeScript configuration
 - tRPC provides end-to-end type safety
 - Run `pnpm check` for type checking
+- **CRITICAL: ALWAYS run `pnpm check` after making code changes**
 
 ## Important Notes
 

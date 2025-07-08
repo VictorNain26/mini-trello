@@ -3,12 +3,12 @@ import { router, protectedProcedure } from '../trpc.js';
 
 /* ─────────── Types utilitaires ─────────── */
 const BoardInput  = z.object({ title: z.string().min(1) });
-const ColumnInput = z.object({ boardId: z.string(), title: z.string().min(1) });
-const CardInput   = z.object({
-  columnId: z.string(),
-  title:    z.string().min(1),
-  order:    z.number().int().min(0).default(0),
-});
+// const ColumnInput = z.object({ boardId: z.string(), title: z.string().min(1) }); // Unused
+// const CardInput   = z.object({ // Unused
+//   columnId: z.string(),
+//   title:    z.string().min(1),
+//   order:    z.number().int().min(0).default(0),
+// });
 const MoveCardInput = z.object({
   boardId: z.string(),
   cardId: z.string(),
@@ -19,22 +19,25 @@ const MoveCardInput = z.object({
 
 export const boardRouter = router({
   /* ——— query current user boards ——— */
-   
-  listMine: protectedProcedure.query(({ ctx }: any) =>
+  getAll: protectedProcedure.query(({ ctx }: any) =>
     ctx.prisma.board.findMany({
       where: { ownerId: ctx.userId },
-      select: { id: true, title: true, createdAt: true },
+      include: {
+        columns: {
+          select: { id: true },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     }),
   ),
 
   /* ——— get board with columns and cards ——— */
-  get: protectedProcedure
-    .input(z.object({ boardId: z.string() }))
+  getById: protectedProcedure
+    .input(z.object({ id: z.string() }))
      
     .query(async ({ ctx, input }: any) => {
       const board = await ctx.prisma.board.findFirst({
-        where: { id: input.boardId, ownerId: ctx.userId },
+        where: { id: input.id, ownerId: ctx.userId },
         include: {
           columns: {
             include: {
@@ -61,48 +64,6 @@ export const boardRouter = router({
       }),
     ),
 
-  /* ——— create column ——— */
-  addColumn: protectedProcedure
-    .input(ColumnInput)
-     
-    .mutation(async ({ ctx, input }: any) => {
-      // vérifie ownership
-      const board = await ctx.prisma.board.findFirst({
-        where: { id: input.boardId, ownerId: ctx.userId },
-      });
-      if (!board) throw new Error('Not your board');
-
-      const pos = await ctx.prisma.column.count({
-        where: { boardId: input.boardId },
-      });
-
-      return ctx.prisma.column.create({
-        data: { title: input.title, order: pos, boardId: input.boardId },
-        select: { id: true, title: true, order: true },
-      });
-    }),
-
-  /* ——— create card ——— */
-  addCard: protectedProcedure
-    .input(CardInput)
-     
-    .mutation(async ({ ctx, input }: any) => {
-      // ownership via join column->board
-      const col = await ctx.prisma.column.findUnique({
-        where: { id: input.columnId },
-        include: { board: { select: { ownerId: true } } },
-      });
-      if (!col || col.board.ownerId !== ctx.userId) throw new Error('Not allowed');
-
-      const pos =
-        input.order ??
-        (await ctx.prisma.card.count({ where: { columnId: input.columnId } }));
-
-      return ctx.prisma.card.create({
-        data: { title: input.title, order: pos, columnId: input.columnId },
-        select: { id: true, title: true, order: true },
-      });
-    }),
 
   /* ——— move card between columns ——— */
   moveCard: protectedProcedure

@@ -17,24 +17,30 @@ model Board {
   ownerId   String
 
   columns   Column[]
+  members   BoardMember[]
 }
 
 model Column {
   id       String   @id @default(uuid())
   title    String
   order    Int
-  board    Board    @relation(fields: [boardId], references: [id])
+  board    Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId  String
   cards    Card[]
   @@index([boardId, order])
 }
 
 model Card {
-  id        String   @id @default(uuid())
-  title     String
-  order     Int
-  column    Column   @relation(fields: [columnId], references: [id])
-  columnId  String
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  order       Int
+  labels      String[] @default([])
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  column      Column   @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  columnId    String
   @@index([columnId, order])
 }
 
@@ -48,6 +54,7 @@ model User {
   color         String   @default("hsl(200 80% 60%)")
 
   boards        Board[]
+  boardMemberships BoardMember[]
   accounts      Account[]
   sessions      Session[]
 }
@@ -84,5 +91,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model BoardMember {
+  id       String   @id @default(uuid())
+  board    Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId  String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  role     String   @default("member") // "owner", "admin", "member"
+  joinedAt DateTime @default(now())
+
+  @@unique([boardId, userId])
 }
 

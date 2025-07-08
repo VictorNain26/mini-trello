@@ -7,7 +7,11 @@ export const trpcClient = (trpc as any).createClient({
   links: [
     httpBatchLink({
       url: `${import.meta.env.VITE_API_URL ?? ''}/trpc`,
-      fetch: (url, opts) => fetch(url, { ...opts, credentials: 'include' })
+      fetch: (url, opts) => fetch(url, { 
+        ...opts, 
+        credentials: 'include',
+        signal: opts?.signal ?? null 
+      } as RequestInit)
     })
   ]
 })

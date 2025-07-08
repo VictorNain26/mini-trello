@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,16 +12,32 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const from = (location.state as any)?.from?.pathname || '/';
-  const { signIn } = useAuth();
+  const from = (location.state as any)?.from?.pathname || '/dashboard';
+  const { signIn, user, loading } = useAuth();
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      navigate(from, { replace: true });
+    }
+  }, [loading, user, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    // Validation client
+    if (!email || !password) {
+      toast.error('Champs requis', {
+        description: 'Veuillez remplir tous les champs'
+      });
+      return;
+    }
+
+    setSubmitting(true);
     setError(null);
 
     try {
@@ -28,12 +45,12 @@ export default function Login() {
       if (result.success) {
         navigate(from, { replace: true });
       } else {
-        setError(result.error || 'Échec de la connexion');
+        setError('Échec de la connexion');
       }
     } catch {
       setError('Échec de la connexion');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -99,9 +116,9 @@ export default function Login() {
               <Button 
                 type="submit" 
                 className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg" 
-                disabled={loading}
+                disabled={submitting}
               >
-                {loading ? 'Connexion en cours...' : 'Se connecter'}
+                {submitting ? 'Connexion en cours...' : 'Se connecter'}
               </Button>
               
               <div className="text-center text-base text-gray-600">

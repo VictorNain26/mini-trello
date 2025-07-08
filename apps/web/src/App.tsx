@@ -1,18 +1,13 @@
-import PresenceBar from './components/PresenceBar';
-import { Board } from './features/Board';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import Board from './pages/Board';
 
 export default function App() {
-  const boardId = 'demo';
-
   return (
-    <div className="h-screen flex flex-col">
-      <header className="p-4 border-b flex items-center justify-between">
-        <h1 className="text-lg font-bold">Mini-Trello</h1>
-        <PresenceBar boardId={boardId} />
-      </header>
-      <main className="flex-1 overflow-hidden">
-        <Board boardId={boardId} />
-      </main>
-    </div>
+    <Routes>
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/board/:id" element={<Board />} />
+    </Routes>
   );
 }

@@ -68,3 +68,5 @@
 @layer utilities {
   .scrollbars-none { scrollbar-width: none; }
 }
+
+/* Default Sonner toast styles - minimal customization */

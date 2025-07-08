@@ -6,8 +6,12 @@ const t = initTRPC.context<Context>().create();
 export const router = t.router;
 export const procedure = t.procedure;
 
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session?.user) throw new TRPCError({ code: 'UNAUTHORIZED' });
-  return next({ ctx: { ...ctx, userId: ctx.session.user.id } });
-   
+export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+  const userId = ctx.session?.user?.id;
+  
+  if (!userId) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  
+  return next({ ctx: { ...ctx, userId } });
 }) as any;

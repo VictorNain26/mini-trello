@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,33 +13,77 @@ export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const nav = useNavigate();
+  const { user, loading } = useAuth();
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!loading && user) {
+      nav('/dashboard', { replace: true });
+    }
+  }, [loading, user, nav]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    
+    // Validation client
+    if (!email || !password) {
+      toast.error('Champs requis', {
+        description: 'Email et mot de passe sont obligatoires'
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error('Mot de passe trop court', {
+        description: 'Le mot de passe doit contenir au moins 6 caractères'
+      });
+      return;
+    }
+
+    setSubmitting(true);
     setError(null);
 
+    // Show loading toast
+    const loadingToast = toast.loading('Création du compte...', {
+      description: 'Préparation de votre espace de travail'
+    });
+
     try {
-      const res = await fetch('http://localhost:4000/signup', {
+      // Create user account via direct API call (simpler)
+      const response = await fetch('http://localhost:4000/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
       });
 
-      setLoading(false);
-      if (res.status === 201) {
+      setSubmitting(false);
+      toast.dismiss(loadingToast);
+
+      if (response.ok) {
         setSuccess(true);
+        toast.success('Compte créé avec succès !', {
+          description: 'Redirection vers la page de connexion...'
+        });
         setTimeout(() => nav('/login'), 2000);
       } else {
-        const json = await res.json().catch(() => ({}));
-        setError(json.error ?? 'Erreur serveur');
+        const result = await response.json().catch(() => ({}));
+        const errorMsg = result.error || 'Erreur lors de la création du compte';
+        setError(errorMsg);
+        toast.error('Erreur de création', {
+          description: errorMsg
+        });
       }
     } catch {
-      setLoading(false);
-      setError('Erreur de connexion au serveur');
+      setSubmitting(false);
+      toast.dismiss(loadingToast);
+      const errorMsg = 'Erreur de connexion au serveur';
+      setError(errorMsg);
+      toast.error('Erreur réseau', {
+        description: 'Vérifiez votre connexion internet'
+      });
     }
   };
 
@@ -125,9 +171,9 @@ export default function Signup() {
               <Button 
                 type="submit" 
                 className="w-full h-12 text-base font-semibold bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-200 transition-all shadow-lg" 
-                disabled={loading || success}
+                disabled={submitting || success}
               >
-                {loading ? 'Création en cours...' : success ? 'Compte créé !' : 'Créer le compte'}
+                {submitting ? 'Création en cours...' : success ? 'Compte créé !' : 'Créer le compte'}
               </Button>
               
               <div className="text-center text-base text-gray-600">
