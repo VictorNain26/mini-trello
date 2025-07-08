@@ -1,0 +1,22 @@
+[variables]
+NODE_ENV = "production"
+
+[phases.setup]
+nixPkgs = ["nodejs", "corepack"]
+
+[phases.install] 
+cmds = [
+  "corepack enable",
+  "corepack prepare pnpm@latest --activate",
+  "cd ../..",
+  "pnpm install --frozen-lockfile"
+]
+
+[phases.build]
+cmds = [
+  "cd ../..",
+  "pnpm --filter api build"
+]
+
+[start]
+cmd = "./start.sh"

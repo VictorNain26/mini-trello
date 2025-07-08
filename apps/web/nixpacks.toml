@@ -1,0 +1,19 @@
+[phases.setup]
+nixPkgs = ["nodejs", "corepack"]
+
+[phases.install]
+cmds = [
+  "corepack enable", 
+  "corepack prepare pnpm@latest --activate",
+  "cd ../..",
+  "pnpm install --frozen-lockfile"
+]
+
+[phases.build]
+cmds = [
+  "cd ../..",
+  "pnpm --filter @mini-trello/web build"
+]
+
+[start]
+cmd = "cd apps/web && pnpm preview"
