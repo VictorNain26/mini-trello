@@ -9,7 +9,7 @@
     "start": "node dist/index.js",
     "lint":  "eslint .",
     "seed":  "tsx prisma/seed.ts",
-    "postbuild": "prisma generate && prisma migrate deploy"
+    "postbuild": "prisma generate"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
