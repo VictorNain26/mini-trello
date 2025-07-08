@@ -135,11 +135,13 @@ export class MemberController {
           role: 'owner',
           joinedAt: board.createdAt
         },
-        ...board.members.map((member: any) => ({
-          ...member.user,
-          role: member.role,
-          joinedAt: member.joinedAt
-        }))
+        ...board.members
+          .filter((member: any) => member.userId !== board.ownerId) // Éviter les doublons
+          .map((member: any) => ({
+            ...member.user,
+            role: member.role,
+            joinedAt: member.joinedAt
+          }))
       ];
 
       res.json(members);

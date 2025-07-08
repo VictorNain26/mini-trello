@@ -141,7 +141,11 @@ export default function Board() {
       });
       if (response.ok) {
         const data = await response.json();
-        setMembers(data);
+        // Filtrer les doublons par ID au cas où
+        const uniqueMembers = data.filter((member: BoardMember, index: number, self: BoardMember[]) => 
+          self.findIndex(m => m.id === member.id) === index
+        );
+        setMembers(uniqueMembers);
         
         // Déterminer le rôle de l'utilisateur actuel
         const currentUserMember = data.find((member: BoardMember) => member.email === user?.email);
@@ -682,9 +686,9 @@ export default function Board() {
                     <span className="text-sm text-gray-600">{members.length}</span>
                   </div>
                   <div className="flex -space-x-2">
-                    {members.slice(0, window.innerWidth < 640 ? 3 : 5).map((member) => (
+                    {members.slice(0, window.innerWidth < 640 ? 3 : 5).map((member, index) => (
                       <div
-                        key={member.id}
+                        key={`${member.id}-${index}`}
                         className="relative group w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-medium text-white"
                         style={{ backgroundColor: member.color }}
                         title={`${member.name || member.email} (${member.role})`}
