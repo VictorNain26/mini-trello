@@ -1,22 +1,64 @@
-# node / pnpm
+# Dependencies
 node_modules/
 .pnpm/
 .turbo/
 .pnpm-store/
 
-# builds
+# Build outputs
 dist/
 build/
 .next/
 coverage/
 *.tsbuildinfo
 
-# env
+# Environment variables
 .env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
 # OS / IDE
 .DS_Store
 .idea/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
+Thumbs.db
 
+# Database
 /generated/prisma
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Railway
+.railway/
+
+# Docker
+.docker/
+
+# Testing
+.nyc_output/
+
+# Backup files
+*.backup
+*.bak
+*.orig

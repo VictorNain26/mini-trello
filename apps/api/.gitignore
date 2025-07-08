@@ -1,6 +1,42 @@
+# Environment variables
 .env
-node_modules
-dist
-coverage
-.vscode
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+prisma/migrations/*.sql
+
+# OS / IDE
 .DS_Store
+.vscode/
+.idea/
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Backup files
+*.backup
+*.bak
