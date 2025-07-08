@@ -21,6 +21,19 @@ import { appRouter } from './router.js'
 import { createContext } from './context.js'
 // import { registerPresence } from './realtime/presence.js' // Removed unused presence
 
+// Helper function to get current user from session
+async function getCurrentUserId(req: any): Promise<string | null> {
+  const sessionResponse = await fetch('http://localhost:4000/api/auth/session', {
+    headers: { cookie: req.headers.cookie || '' }
+  });
+  
+  if (sessionResponse.ok) {
+    const sessionData = await sessionResponse.json();
+    return sessionData?.user?.id || null;
+  }
+  return null;
+}
+
 export type { AppRouter } from './router.js'
 
 export const app: express.Application = express()
@@ -325,7 +338,8 @@ app.post('/api/boards/:boardId/columns', async (req: any, res: any) => {
   try {
     const { boardId } = req.params;
     const { title } = req.body;
-    const currentUserId = req.session?.user?.id;
+
+    const currentUserId = await getCurrentUserId(req);
 
     if (!currentUserId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -402,7 +416,7 @@ app.put('/api/columns/:id', async (req: any, res: any) => {
 app.delete('/api/columns/:id', async (req: any, res: any) => {
   try {
     const { id } = req.params;
-    const currentUserId = req.session?.user?.id;
+    const currentUserId = await getCurrentUserId(req);
 
     if (!currentUserId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -448,7 +462,7 @@ app.post('/api/columns/:columnId/cards', async (req: any, res: any) => {
   try {
     const { columnId } = req.params;
     const { title } = req.body;
-    const currentUserId = req.session?.user?.id;
+    const currentUserId = await getCurrentUserId(req);
 
     if (!currentUserId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -547,7 +561,7 @@ app.put('/api/cards/:id', async (req: any, res: any) => {
 app.delete('/api/cards/:id', async (req: any, res: any) => {
   try {
     const { id } = req.params;
-    const currentUserId = req.session?.user?.id;
+    const currentUserId = await getCurrentUserId(req);
 
     if (!currentUserId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -825,7 +839,7 @@ app.put('/api/boards/:id', async (req: any, res: any) => {
 app.delete('/api/boards/:id', async (req: any, res: any) => {
   try {
     const { id } = req.params;
-    const currentUserId = req.session?.user?.id;
+    const currentUserId = await getCurrentUserId(req);
 
     if (!currentUserId) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -873,7 +887,7 @@ app.put('/api/columns/:id/move', async (req: any, res: any) => {
 app.delete('/api/boards/:boardId/members/:userId', async (req: any, res: any) => {
   try {
     const { boardId, userId } = req.params;
-    const currentUserId = req.session?.user?.id;
+    const currentUserId = await getCurrentUserId(req);
 
     if (!currentUserId) {
       return res.status(401).json({ error: 'Unauthorized' });

@@ -297,7 +297,7 @@ export default function Board() {
       });
 
       if (response.ok) {
-        setMembers(prev => prev.filter(member => member.user.id !== userId));
+        setMembers(prev => prev.filter(member => member.id !== userId));
         toast.success('Membre expulsé !');
       } else {
         toast.error('Erreur lors de l\'expulsion');
@@ -736,7 +736,7 @@ export default function Board() {
                           <button
                             onClick={() => {
                               if (confirm(`Êtes-vous sûr de vouloir expulser ${member.name || member.email} ?`)) {
-                                removeMember(member.user.id);
+                                removeMember(member.id);
                               }
                             }}
                             className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"

@@ -175,6 +175,7 @@ export function DraggableColumn({
             {...(card.dueDate && { dueDate: card.dueDate })}
             {...(!isReadOnly && { onDelete: () => onDeleteCard(card.id) })}
             onClick={() => onCardClick(card)}
+            isReadOnly={isReadOnly}
           />
         ))}
       </DroppableColumn>

@@ -12,6 +12,7 @@ interface DraggableCardProps {
   dueDate?: string;
   onDelete?: () => void;
   onClick: () => void;
+  isReadOnly?: boolean;
 }
 
 const LABEL_COLORS: Record<string, string> = {
@@ -32,7 +33,8 @@ export function DraggableCard({
   labels = [], 
   dueDate, 
   onDelete, 
-  onClick 
+  onClick,
+  isReadOnly = false
 }: DraggableCardProps) {
   const {
     attributes,
@@ -67,7 +69,10 @@ export function DraggableCard({
         if ((e.target as HTMLElement).closest('[data-delete-button]')) {
           return;
         }
-        onClick();
+        // Ne pas ouvrir le modal en mode lecture seule
+        if (!isReadOnly) {
+          onClick();
+        }
       }}
     >
       <CardContent className="p-3">
