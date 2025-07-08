@@ -5,8 +5,6 @@
   "files": [],
   "references": [
     { "path": "apps/api" },
-    { "path": "apps/web" },
-    { "path": "packages/ui" },
-    { "path": "packages/db" }
+    { "path": "apps/web" }
   ]
 }

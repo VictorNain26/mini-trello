@@ -7,9 +7,5 @@
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"]
   },
-  "references": [
-    { "path": "../../packages/ui" },
-    { "path": "../../packages/db" }
-  ],
   "include": ["src"]
 }

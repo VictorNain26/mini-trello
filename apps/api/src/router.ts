@@ -1,14 +1,6 @@
 import { router } from './trpc.js';
-import { boardRouter } from './routers/board.js';
-import { columnRouter } from './routers/column.js';
-import { cardRouter } from './routers/card.js';
-import { userRouter } from './routers/user.js';
 
-export const appRouter = router({
-  board: boardRouter,
-  column: columnRouter,
-  card: cardRouter,
-  user: userRouter,
-});
+// Empty router for now since we're using REST endpoints
+export const appRouter = router({});
 
 export type AppRouter = typeof appRouter;

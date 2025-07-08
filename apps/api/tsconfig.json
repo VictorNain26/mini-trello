@@ -1,6 +1,15 @@
 {
-  "extends": "../../packages/tsconfig/strict.json",
   "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
     "composite": true,
     "outDir": "dist",
     "rootDir": "src",
@@ -8,11 +17,9 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["node"]
+    "types": ["node"],
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
-  "references": [
-    { "path": "../../packages/ui" },
-    { "path": "../../packages/db" }
-  ],
   "include": ["src"]
 }

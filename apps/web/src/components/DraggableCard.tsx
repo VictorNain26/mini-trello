@@ -60,8 +60,8 @@ export function DraggableCard({
       ref={setNodeRef} 
       style={style}
       {...attributes}
-      {...listeners}
-      className={`bg-white shadow-sm hover:shadow-md transition-all cursor-pointer group ${
+      {...(!isReadOnly && listeners)}
+      className={`bg-white shadow-sm hover:shadow-md transition-all ${isReadOnly ? 'cursor-default' : 'cursor-pointer'} group ${
         isDragging ? 'shadow-lg ring-2 ring-blue-500 ring-opacity-50' : ''
       }`}
       onClick={(e) => {

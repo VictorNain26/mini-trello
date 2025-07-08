@@ -1,0 +1,15 @@
+import { Router, RequestHandler } from 'express';
+import { ColumnController } from '../controllers/column.controller.js';
+import { CardController } from '../controllers/card.controller.js';
+
+const router: Router = Router();
+
+// Column routes
+router.put('/:id', ColumnController.updateColumn as RequestHandler);
+router.delete('/:id', ColumnController.deleteColumn as RequestHandler);
+router.put('/:id/move', ColumnController.moveColumn as RequestHandler);
+
+// Card routes
+router.post('/:columnId/cards', CardController.createCard as RequestHandler);
+
+export { router as columnRoutes };

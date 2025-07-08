@@ -349,70 +349,10 @@ export default function Board() {
     }
   };
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over || !board) return;
-
-    const activeId = active.id as string;
-    const overId = over.id as string;
-
-    // Skip if dragging a column - columns handle their own sorting
-    if (activeId.startsWith('column-')) return;
-
-    // Find the active card and over container
-    const activeCard = findCardById(activeId);
-    const overCard = findCardById(overId);
-    
-    if (!activeCard) return;
-
-    const activeColumn = findColumnByCardId(activeId);
-    
-    // Determine over column - if hovering over a card, get its column
-    // If hovering over a column directly, use that column
-    let overColumn = null;
-    if (overCard) {
-      overColumn = findColumnByCardId(overId);
-    } else if (overId.startsWith('column-')) {
-      overColumn = findColumnById(overId.replace('column-', ''));
-    } else {
-      overColumn = findColumnById(overId);
-    }
-
-    if (!activeColumn || !overColumn) return;
-
-    // If dropping on the same column, do nothing here
-    if (activeColumn.id === overColumn.id) return;
-
-    // Move card to different column
-    setBoard(prev => {
-      if (!prev) return prev;
-
-      const overCards = overColumn.cards;
-
-      // Find the indexes
-      const overIndex = overCard ? overCards.findIndex(card => card.id === overId) : overCards.length;
-
-      return {
-        ...prev,
-        columns: prev.columns.map(col => {
-          if (col.id === activeColumn.id) {
-            return {
-              ...col,
-              cards: col.cards.filter(card => card.id !== activeId)
-            };
-          }
-          if (col.id === overColumn.id) {
-            const newCards = [...col.cards];
-            newCards.splice(overIndex, 0, { ...activeCard, columnId: overColumn.id });
-            return {
-              ...col,
-              cards: newCards
-            };
-          }
-          return col;
-        })
-      };
-    });
+  const handleDragOver = (_event: DragOverEvent) => {
+    if (userRole === 'reader') return;
+    // Ne plus faire de mises à jour ici pour éviter le lag
+    // Tout sera géré dans handleDragEnd de manière optimiste
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -420,7 +360,7 @@ export default function Board() {
     setActiveCard(null);
     setActiveColumn(null);
 
-    if (!over || !board) return;
+    if (userRole === 'reader' || !over || !board) return;
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -468,7 +408,6 @@ export default function Board() {
               body: JSON.stringify({ order: overIndex }),
               credentials: 'include'
             });
-            toast.success('Colonne déplacée !');
           } catch {
             toast.error('Erreur lors du déplacement');
             loadBoard();
@@ -529,12 +468,41 @@ export default function Board() {
         }
       }
     } else {
-      // Moving to different column - already handled in handleDragOver
-      try {
-        const overIndex = overCard ? 
-          overColumn.cards.findIndex(card => card.id === overId) : 
-          overColumn.cards.length;
+      // Moving to different column
+      const overIndex = overCard ? 
+        overColumn.cards.findIndex(card => card.id === overId) : 
+        overColumn.cards.length;
 
+      // Mise à jour optimiste immédiate
+      setBoard(prev => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          columns: prev.columns.map(col => {
+            if (col.id === activeColumn.id) {
+              // Retirer la carte de la colonne source
+              return {
+                ...col,
+                cards: col.cards.filter(card => card.id !== activeId)
+              };
+            }
+            if (col.id === overColumn.id) {
+              // Ajouter la carte à la colonne cible
+              const newCards = [...col.cards];
+              newCards.splice(overIndex, 0, { ...activeCard, columnId: overColumn.id });
+              return {
+                ...col,
+                cards: newCards
+              };
+            }
+            return col;
+          })
+        };
+      });
+
+      // Appel API en arrière-plan
+      try {
         await fetch(`http://localhost:4000/api/cards/${activeId}/move`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -544,11 +512,9 @@ export default function Board() {
           }),
           credentials: 'include'
         });
-        
-        toast.success('Carte déplacée !');
       } catch {
         toast.error('Erreur lors du déplacement');
-        loadBoard();
+        loadBoard(); // Recharger en cas d'erreur pour récupérer l'état correct
       }
     }
   };
@@ -754,7 +720,7 @@ export default function Board() {
                   </div>
                 </div>
 
-                {(userRole === 'owner' || userRole === 'editor') && (
+                {userRole === 'owner' && (
                   <Button
                     variant="outline"
                     size="sm"

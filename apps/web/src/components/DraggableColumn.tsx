@@ -90,13 +90,15 @@ export function DraggableColumn({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center flex-1 space-x-2">
           {/* Drag Handle pour la colonne */}
-          <div
-            {...attributes}
-            {...listeners}
-            className="p-1 rounded cursor-grab active:cursor-grabbing hover:bg-gray-200 transition-colors"
-          >
-            <GripVertical className="h-4 w-4 text-gray-400" />
-          </div>
+          {!isReadOnly && (
+            <div
+              {...attributes}
+              {...listeners}
+              className="p-1 rounded cursor-grab active:cursor-grabbing hover:bg-gray-200 transition-colors"
+            >
+              <GripVertical className="h-4 w-4 text-gray-400" />
+            </div>
+          )}
 
           <div className="flex-1">
             {editingTitle ? (
