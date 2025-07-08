@@ -4,8 +4,17 @@ NIXPACKS_METADATA = "mini-trello-web"
 [phases.setup]
 nixPkgs = ["nodejs-20_x", "pnpm"]
 
+[phases.install]
+cmds = [
+  "cd ../..",
+  "pnpm install --frozen-lockfile --prefer-offline"
+]
+
 [phases.build]
-cmds = ["./railway-build.sh"]
+cmds = [
+  "cd ../..",
+  "pnpm --filter @mini-trello/web build"
+]
 
 [start]
 cmd = "cd apps/web && pnpm preview"
