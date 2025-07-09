@@ -19,19 +19,19 @@ export async function getUserBoardRole(boardId: string, userId: string): Promise
     include: {
       members: {
         where: { userId },
-        select: { role: true }
-      }
-    }
+        select: { role: true },
+      },
+    },
   });
 
   if (!board) return null;
-  
+
   // Check if user is owner
   if (board.ownerId === userId) return 'owner';
-  
+
   // Check if user is member
   const member = board.members[0];
-  return member?.role as UserRole || null;
+  return (member?.role as UserRole) || null;
 }
 
 /**
@@ -44,7 +44,7 @@ export function getPermissionsForRole(role: UserRole | null): BoardPermissions {
       canEdit: false,
       canDelete: false,
       canInvite: false,
-      canManageMembers: false
+      canManageMembers: false,
     };
   }
 
@@ -55,7 +55,7 @@ export function getPermissionsForRole(role: UserRole | null): BoardPermissions {
         canEdit: true,
         canDelete: true,
         canInvite: true,
-        canManageMembers: true
+        canManageMembers: true,
       };
     case 'editor':
       return {
@@ -63,7 +63,7 @@ export function getPermissionsForRole(role: UserRole | null): BoardPermissions {
         canEdit: true,
         canDelete: true,
         canInvite: false,
-        canManageMembers: false
+        canManageMembers: false,
       };
     case 'reader':
       return {
@@ -71,7 +71,7 @@ export function getPermissionsForRole(role: UserRole | null): BoardPermissions {
         canEdit: false,
         canDelete: false,
         canInvite: false,
-        canManageMembers: false
+        canManageMembers: false,
       };
     default:
       return {
@@ -79,7 +79,7 @@ export function getPermissionsForRole(role: UserRole | null): BoardPermissions {
         canEdit: false,
         canDelete: false,
         canInvite: false,
-        canManageMembers: false
+        canManageMembers: false,
       };
   }
 }

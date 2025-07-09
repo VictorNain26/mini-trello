@@ -1,11 +1,11 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
-    "dev":   { "cache": false, "persistent": true },
+    "dev": { "cache": false, "persistent": true },
     "build": { "outputs": ["dist/**", "build/**"] },
-    "lint":  { "outputs": [] },
-    "test":  { "outputs": [] },
-    "format": { "outputs": [] },
+    "lint": { "outputs": [], "inputs": ["src/**/*.{ts,tsx,js,jsx}", "biome.json"] },
+    "test": { "outputs": [] },
+    "format": { "outputs": [], "inputs": ["src/**/*.{ts,tsx,js,jsx}", "biome.json"] },
     "check": { "outputs": [] }
   }
 }

@@ -1,1 +1,3 @@
-export { default } from './packages/config/eslint.config.js';
+// ESLint replaced by Biome for better performance
+// Run: pnpm biome check
+export default [];

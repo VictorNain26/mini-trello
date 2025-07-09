@@ -4,14 +4,14 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "dev":   "tsx watch src/index.ts",
+    "dev": "tsx watch src/index.ts",
     "build": "rimraf dist && tsc -p .",
     "start": "node dist/index.js",
     "deploy": "npx prisma migrate deploy && node dist/index.js",
-    "lint":  "eslint .",
+    "lint": "biome check src/",
     "check": "tsc --noEmit",
-    "test":  "echo 'No API tests configured yet.'",
-    "seed":  "tsx prisma/seed.ts",
+    "test": "echo 'No API tests configured yet.'",
+    "seed": "tsx prisma/seed.ts",
     "postbuild": "prisma generate"
   },
   "prisma": {

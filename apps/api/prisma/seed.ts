@@ -14,7 +14,7 @@ async function main() {
   const hashed = await bcrypt.hash('demo', 10);
 
   const user = await prisma.user.upsert({
-    where:  { email: 'demo@demo.com' },
+    where: { email: 'demo@demo.com' },
     update: { hashedPwd: hashed },
     create: {
       email: 'demo@demo.com',
@@ -29,26 +29,26 @@ async function main() {
     where: { id: 'demo' },
     update: {},
     create: {
-      id:      'demo',
-      title:   'Demo Board',
+      id: 'demo',
+      title: 'Demo Board',
       ownerId: user.id,
 
       columns: {
         create: [
           {
-            id:    'todo',
+            id: 'todo',
             title: 'To Do',
             order: 0,
             cards: {
               create: [
                 { id: 'c1', title: 'Hello world', order: 0 },
-                { id: 'c2', title: 'Drag me',     order: 1 },
-                { id: 'c3', title: 'Drop me',     order: 2 },
+                { id: 'c2', title: 'Drag me', order: 1 },
+                { id: 'c3', title: 'Drop me', order: 2 },
               ],
             },
           },
           { id: 'doing', title: 'Doing', order: 1 },
-          { id: 'done',  title: 'Done',  order: 2 },
+          { id: 'done', title: 'Done', order: 2 },
         ],
       },
     },

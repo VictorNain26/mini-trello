@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Card {
@@ -42,12 +42,12 @@ export function useBoard(boardId: string | undefined) {
 
   const loadBoard = useCallback(async () => {
     if (!boardId) return;
-    
+
     try {
       const response = await fetch(`http://localhost:4000/api/boards/${boardId}`, {
-        credentials: 'include'
+        credentials: 'include',
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         // Ensure cards have columnId
@@ -57,9 +57,9 @@ export function useBoard(boardId: string | undefined) {
             ...col,
             cards: col.cards.map((card: any) => ({
               ...card,
-              columnId: col.id
-            }))
-          }))
+              columnId: col.id,
+            })),
+          })),
         };
         setBoard(processedData);
       } else {
@@ -74,16 +74,16 @@ export function useBoard(boardId: string | undefined) {
 
   const loadMembers = useCallback(async () => {
     if (!boardId) return;
-    
+
     try {
       const response = await fetch(`http://localhost:4000/api/boards/${boardId}/members`, {
-        credentials: 'include'
+        credentials: 'include',
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setMembers(data);
-        
+
         // Get current user email from another API call or context
         // For now, we'll determine role from the members list
         // This should ideally come from a user context
@@ -101,63 +101,83 @@ export function useBoard(boardId: string | undefined) {
   }, [boardId, loadBoard, loadMembers]);
 
   const updateBoard = (updates: Partial<Board>) => {
-    setBoard(prev => prev ? { ...prev, ...updates } : null);
+    setBoard((prev) => (prev ? { ...prev, ...updates } : null));
   };
 
   const updateColumn = (columnId: string, updates: Partial<Column>) => {
-    setBoard(prev => prev ? {
-      ...prev,
-      columns: prev.columns.map(col => 
-        col.id === columnId ? { ...col, ...updates } : col
-      )
-    } : null);
+    setBoard((prev) =>
+      prev
+        ? {
+            ...prev,
+            columns: prev.columns.map((col) =>
+              col.id === columnId ? { ...col, ...updates } : col
+            ),
+          }
+        : null
+    );
   };
 
   const updateCard = (cardId: string, updates: Partial<Card>) => {
-    setBoard(prev => prev ? {
-      ...prev,
-      columns: prev.columns.map(col => ({
-        ...col,
-        cards: col.cards.map(card => 
-          card.id === cardId ? { ...card, ...updates } : card
-        )
-      }))
-    } : null);
+    setBoard((prev) =>
+      prev
+        ? {
+            ...prev,
+            columns: prev.columns.map((col) => ({
+              ...col,
+              cards: col.cards.map((card) => (card.id === cardId ? { ...card, ...updates } : card)),
+            })),
+          }
+        : null
+    );
   };
 
   const addColumn = (column: Column) => {
-    setBoard(prev => prev ? {
-      ...prev,
-      columns: [...prev.columns, column]
-    } : null);
+    setBoard((prev) =>
+      prev
+        ? {
+            ...prev,
+            columns: [...prev.columns, column],
+          }
+        : null
+    );
   };
 
   const removeColumn = (columnId: string) => {
-    setBoard(prev => prev ? {
-      ...prev,
-      columns: prev.columns.filter(col => col.id !== columnId)
-    } : null);
+    setBoard((prev) =>
+      prev
+        ? {
+            ...prev,
+            columns: prev.columns.filter((col) => col.id !== columnId),
+          }
+        : null
+    );
   };
 
   const addCard = (columnId: string, card: Card) => {
-    setBoard(prev => prev ? {
-      ...prev,
-      columns: prev.columns.map(col => 
-        col.id === columnId 
-          ? { ...col, cards: [...col.cards, card] }
-          : col
-      )
-    } : null);
+    setBoard((prev) =>
+      prev
+        ? {
+            ...prev,
+            columns: prev.columns.map((col) =>
+              col.id === columnId ? { ...col, cards: [...col.cards, card] } : col
+            ),
+          }
+        : null
+    );
   };
 
   const removeCard = (cardId: string) => {
-    setBoard(prev => prev ? {
-      ...prev,
-      columns: prev.columns.map(col => ({
-        ...col,
-        cards: col.cards.filter(card => card.id !== cardId)
-      }))
-    } : null);
+    setBoard((prev) =>
+      prev
+        ? {
+            ...prev,
+            columns: prev.columns.map((col) => ({
+              ...col,
+              cards: col.cards.filter((card) => card.id !== cardId),
+            })),
+          }
+        : null
+    );
   };
 
   return {
@@ -176,6 +196,6 @@ export function useBoard(boardId: string | undefined) {
     addColumn,
     removeColumn,
     addCard,
-    removeCard
+    removeCard,
   };
 }

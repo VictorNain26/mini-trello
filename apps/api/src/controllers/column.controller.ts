@@ -1,8 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { prisma } from '../db.js';
 import { requireAuth } from '../utils/auth.js';
-import { requireBoardPermission, checkBoardPermission } from '../utils/permissions.js';
-import { validateRequest, CreateColumnSchema, UpdateColumnSchema, MoveColumnSchema } from '../utils/validation.js';
+import { requireBoardPermission } from '../utils/permissions.js';
+import {
+  CreateColumnSchema,
+  MoveColumnSchema,
+  UpdateColumnSchema,
+  validateRequest,
+} from '../utils/validation.js';
 
 export class ColumnController {
   /**
@@ -19,15 +24,15 @@ export class ColumnController {
       // Get next order
       const lastColumn = await prisma.column.findFirst({
         where: { boardId },
-        orderBy: { order: 'desc' }
+        orderBy: { order: 'desc' },
       });
 
       const column = await prisma.column.create({
         data: {
           title: data.title,
           boardId,
-          order: (lastColumn?.order || 0) + 1
-        }
+          order: (lastColumn?.order || 0) + 1,
+        },
       });
 
       res.json(column);
@@ -62,7 +67,7 @@ export class ColumnController {
       // Get column with board info to check permissions
       const column = await prisma.column.findUnique({
         where: { id },
-        include: { board: true }
+        include: { board: true },
       });
 
       if (!column) {
@@ -74,7 +79,7 @@ export class ColumnController {
 
       await prisma.column.update({
         where: { id },
-        data: { title: data.title }
+        data: { title: data.title },
       });
 
       res.json({ success: true });
@@ -109,7 +114,7 @@ export class ColumnController {
       // Get column with board info to check permissions
       const column = await prisma.column.findUnique({
         where: { id },
-        include: { board: true }
+        include: { board: true },
       });
 
       if (!column) {
@@ -118,7 +123,7 @@ export class ColumnController {
       }
 
       await requireBoardPermission(column.boardId, userId, 'canEdit');
-      
+
       await prisma.column.delete({ where: { id } });
       res.json({ success: true });
       return;
@@ -151,7 +156,7 @@ export class ColumnController {
       // Get column with board info to check permissions
       const column = await prisma.column.findUnique({
         where: { id },
-        include: { board: true }
+        include: { board: true },
       });
 
       if (!column) {
@@ -163,7 +168,7 @@ export class ColumnController {
 
       await prisma.column.update({
         where: { id },
-        data: { order: data.order }
+        data: { order: data.order },
       });
 
       res.json({ success: true });

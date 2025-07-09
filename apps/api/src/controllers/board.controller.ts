@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { prisma } from '../db.js';
-import { requireAuth, getAuthenticatedUser } from '../utils/auth.js';
+import { getAuthenticatedUser, requireAuth } from '../utils/auth.js';
 import { requireBoardPermission } from '../utils/permissions.js';
-import { validateRequest, CreateBoardSchema, UpdateBoardSchema } from '../utils/validation.js';
+import { CreateBoardSchema, UpdateBoardSchema, validateRequest } from '../utils/validation.js';
 
 export class BoardController {
   /**
@@ -11,49 +11,49 @@ export class BoardController {
   static async getBoards(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = await getAuthenticatedUser(req);
-      
+
       if (!userId) {
         res.json([]);
         return;
       }
-      
+
       // Get owned boards
       const ownedBoards = await prisma.board.findMany({
         where: { ownerId: userId },
         include: {
           _count: {
-            select: { columns: true }
+            select: { columns: true },
           },
           owner: {
-            select: { id: true, name: true, email: true }
-          }
+            select: { id: true, name: true, email: true },
+          },
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       });
 
       // Get shared boards (where user is a member)
       const sharedBoards = await prisma.board.findMany({
         where: {
           members: {
-            some: { userId: userId }
-          }
+            some: { userId: userId },
+          },
         },
         include: {
           _count: {
-            select: { columns: true }
+            select: { columns: true },
           },
           owner: {
-            select: { id: true, name: true, email: true }
-          }
+            select: { id: true, name: true, email: true },
+          },
         },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
       });
 
       const boards = {
         owned: ownedBoards.map((board: any) => ({ ...board, isOwner: true })),
-        shared: sharedBoards.map((board: any) => ({ ...board, isOwner: false }))
+        shared: sharedBoards.map((board: any) => ({ ...board, isOwner: false })),
       };
-      
+
       res.json(boards);
     } catch (error) {
       console.error('Get boards error:', error);
@@ -77,8 +77,8 @@ export class BoardController {
       const board = await prisma.board.create({
         data: {
           title: data.title,
-          ownerId: userId
-        }
+          ownerId: userId,
+        },
       });
 
       res.json(board);
@@ -106,27 +106,27 @@ export class BoardController {
       }
 
       const board = await prisma.board.findFirst({
-        where: { 
+        where: {
           id,
           OR: [
             { ownerId: userId },
-            { 
+            {
               members: {
-                some: { userId: userId }
-              }
-            }
-          ]
+                some: { userId: userId },
+              },
+            },
+          ],
         },
         include: {
           columns: {
             orderBy: { order: 'asc' },
             include: {
               cards: {
-                orderBy: { order: 'asc' }
-              }
-            }
-          }
-        }
+                orderBy: { order: 'asc' },
+              },
+            },
+          },
+        },
       });
 
       if (!board) {
@@ -154,7 +154,7 @@ export class BoardController {
 
       await prisma.board.update({
         where: { id },
-        data: { title: data.title }
+        data: { title: data.title },
       });
 
       res.json({ success: true });
@@ -162,7 +162,7 @@ export class BoardController {
       if (error instanceof Error) {
         if (error.message === 'Unauthorized') {
           res.status(401).json({ error: 'Unauthorized' });
-        return;
+          return;
         }
         if (error.message.includes('Insufficient permissions')) {
           res.status(403).json({ error: error.message });
@@ -186,7 +186,7 @@ export class BoardController {
 
       // Only owner can delete board
       const board = await prisma.board.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!board) {
@@ -198,7 +198,7 @@ export class BoardController {
         res.status(403).json({ error: 'Only the owner can delete the board' });
         return;
       }
-      
+
       await prisma.board.delete({ where: { id } });
       res.json({ success: true });
     } catch (error) {

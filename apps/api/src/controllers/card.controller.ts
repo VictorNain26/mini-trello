@@ -1,8 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { prisma } from '../db.js';
 import { requireAuth } from '../utils/auth.js';
 import { requireBoardPermission } from '../utils/permissions.js';
-import { validateRequest, CreateCardSchema, UpdateCardSchema, MoveCardSchema } from '../utils/validation.js';
+import {
+  CreateCardSchema,
+  MoveCardSchema,
+  UpdateCardSchema,
+  validateRequest,
+} from '../utils/validation.js';
 
 export class CardController {
   /**
@@ -17,7 +22,7 @@ export class CardController {
       // Get column with board info to check permissions
       const column = await prisma.column.findUnique({
         where: { id: columnId },
-        include: { board: true }
+        include: { board: true },
       });
 
       if (!column) {
@@ -30,15 +35,15 @@ export class CardController {
       // Get next order
       const lastCard = await prisma.card.findFirst({
         where: { columnId },
-        orderBy: { order: 'desc' }
+        orderBy: { order: 'desc' },
       });
 
       const card = await prisma.card.create({
         data: {
           title: data.title,
           columnId,
-          order: (lastCard?.order || 0) + 1
-        }
+          order: (lastCard?.order || 0) + 1,
+        },
       });
 
       res.json(card);
@@ -74,9 +79,9 @@ export class CardController {
         where: { id },
         include: {
           column: {
-            include: { board: true }
-          }
-        }
+            include: { board: true },
+          },
+        },
       });
 
       if (!card) {
@@ -87,15 +92,21 @@ export class CardController {
       await requireBoardPermission(card.column.boardId, userId, 'canEdit');
 
       // Prepare update data
-      const updateData: any = {};
+      const updateData: Partial<{
+        title: string;
+        description: string;
+        labels: string[];
+        dueDate: Date | null;
+      }> = {};
       if (data.title !== undefined) updateData.title = data.title;
       if (data.description !== undefined) updateData.description = data.description;
       if (data.labels !== undefined) updateData.labels = data.labels;
-      if (data.dueDate !== undefined) updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null;
+      if (data.dueDate !== undefined)
+        updateData.dueDate = data.dueDate ? new Date(data.dueDate) : null;
 
       await prisma.card.update({
         where: { id },
-        data: updateData
+        data: updateData,
       });
 
       res.json({ success: true });
@@ -130,9 +141,9 @@ export class CardController {
         where: { id },
         include: {
           column: {
-            include: { board: true }
-          }
-        }
+            include: { board: true },
+          },
+        },
       });
 
       if (!card) {
@@ -141,7 +152,7 @@ export class CardController {
       }
 
       await requireBoardPermission(card.column.boardId, userId, 'canEdit');
-      
+
       await prisma.card.delete({ where: { id } });
       res.json({ success: true });
     } catch (error) {
@@ -174,9 +185,9 @@ export class CardController {
         where: { id },
         include: {
           column: {
-            include: { board: true }
-          }
-        }
+            include: { board: true },
+          },
+        },
       });
 
       if (!card) {
@@ -188,10 +199,10 @@ export class CardController {
 
       await prisma.card.update({
         where: { id },
-        data: { 
-          columnId: data.columnId, 
-          order: data.order 
-        }
+        data: {
+          columnId: data.columnId,
+          order: data.order,
+        },
       });
 
       res.json({ success: true });

@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import type { Request } from 'express';
 import { prisma } from '../db.js';
 
 /**
@@ -7,9 +7,9 @@ import { prisma } from '../db.js';
 export async function getCurrentUserId(req: Request): Promise<string | null> {
   try {
     const sessionResponse = await fetch('http://localhost:4000/api/auth/session', {
-      headers: { cookie: req.headers.cookie || '' }
+      headers: { cookie: req.headers.cookie || '' },
     });
-    
+
     if (sessionResponse.ok) {
       const sessionData = await sessionResponse.json();
       return sessionData?.user?.id || null;
@@ -25,24 +25,24 @@ export async function getCurrentUserId(req: Request): Promise<string | null> {
  */
 export async function getAuthenticatedUser(req: Request) {
   let userId = await getCurrentUserId(req);
-  
+
   // Fallback to demo user if no valid session user
   if (!userId) {
     const demoEmail = 'demo@demo.com';
-    
+
     let demoUser = await prisma.user.findUnique({ where: { email: demoEmail } });
     if (!demoUser) {
       demoUser = await prisma.user.create({
         data: {
           email: demoEmail,
           hashedPwd: 'demo-hash',
-          name: 'Demo User'
-        }
+          name: 'Demo User',
+        },
       });
     }
     userId = demoUser.id;
   }
-  
+
   return userId;
 }
 

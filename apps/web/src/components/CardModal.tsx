@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { X, Calendar, AlignLeft, Trash2, Save, Edit3, Tag } from 'lucide-react';
+import { AlignLeft, Calendar, Edit3, Save, Tag, Trash2, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CardModalProps {
   card: {
@@ -57,9 +57,9 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
       const selectedDate = new Date(dueDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Reset time to start of day
-      
+
       if (selectedDate < today) {
-        toast.error('La date d\'échéance ne peut pas être dans le passé');
+        toast.error("La date d'échéance ne peut pas être dans le passé");
         return;
       }
     }
@@ -69,14 +69,14 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
         title: title.trim(),
         description: description.trim(),
         labels,
-        dueDate: dueDate ? new Date(dueDate).toISOString() : null
+        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
       };
 
       const response = await fetch(`http://localhost:4000/api/cards/${card.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -93,10 +93,8 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
   };
 
   const toggleLabel = (labelValue: string) => {
-    setLabels(prev => 
-      prev.includes(labelValue)
-        ? prev.filter(l => l !== labelValue)
-        : [...prev, labelValue]
+    setLabels((prev) =>
+      prev.includes(labelValue) ? prev.filter((l) => l !== labelValue) : [...prev, labelValue]
     );
   };
 
@@ -119,20 +117,23 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">Modifier la carte</CardTitle>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onClose} 
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
             className="rounded-full h-10 w-10 p-0 hover:bg-gray-100 text-gray-500 hover:text-gray-700"
           >
             <X className="h-5 w-5" />
           </Button>
         </CardHeader>
-        
+
         <CardContent className="p-6 space-y-8 max-h-[calc(90vh-140px)] overflow-y-auto bg-gray-50">
           {/* Titre */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <Label htmlFor="card-title" className="text-lg font-semibold text-gray-900 flex items-center space-x-2 mb-4">
+            <Label
+              htmlFor="card-title"
+              className="text-lg font-semibold text-gray-900 flex items-center space-x-2 mb-4"
+            >
               <Edit3 className="h-5 w-5 text-blue-600" />
               <span>Titre</span>
             </Label>
@@ -151,7 +152,7 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
               <Tag className="h-5 w-5 text-blue-600" />
               <span>Étiquettes</span>
             </Label>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-4 gap-3">
                 {LABEL_COLORS.map((label) => (
@@ -161,8 +162,8 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
                     className={`relative px-4 py-3 rounded-lg text-white font-medium text-sm transition-all duration-200 transform hover:scale-105 hover:shadow-lg ${
                       label.color
                     } ${
-                      labels.includes(label.value) 
-                        ? 'ring-2 ring-blue-500 ring-offset-2 shadow-lg scale-105' 
+                      labels.includes(label.value)
+                        ? 'ring-2 ring-blue-500 ring-offset-2 shadow-lg scale-105'
                         : 'opacity-90 hover:opacity-100'
                     }`}
                   >
@@ -175,15 +176,21 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
                   </button>
                 ))}
               </div>
-              
+
               {labels.length > 0 && (
                 <div className="pt-4 border-t border-gray-200">
-                  <p className="text-sm text-gray-600 mb-2 font-medium">{labels.length} étiquette{labels.length > 1 ? 's' : ''} sélectionnée{labels.length > 1 ? 's' : ''} :</p>
+                  <p className="text-sm text-gray-600 mb-2 font-medium">
+                    {labels.length} étiquette{labels.length > 1 ? 's' : ''} sélectionnée
+                    {labels.length > 1 ? 's' : ''} :
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     {labels.map((labelValue) => {
-                      const label = LABEL_COLORS.find(l => l.value === labelValue);
+                      const label = LABEL_COLORS.find((l) => l.value === labelValue);
                       return label ? (
-                        <span key={labelValue} className={`px-3 py-1 rounded-full text-white text-sm font-medium ${label.color}`}>
+                        <span
+                          key={labelValue}
+                          className={`px-3 py-1 rounded-full text-white text-sm font-medium ${label.color}`}
+                        >
                           {label.name}
                         </span>
                       ) : null;
@@ -196,11 +203,14 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
 
           {/* Date d'échéance */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <Label htmlFor="due-date" className="text-lg font-semibold text-gray-900 flex items-center space-x-2 mb-4">
+            <Label
+              htmlFor="due-date"
+              className="text-lg font-semibold text-gray-900 flex items-center space-x-2 mb-4"
+            >
               <Calendar className="h-5 w-5 text-blue-600" />
               <span>Date d'échéance</span>
             </Label>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <Input
@@ -216,7 +226,7 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
                   <span>Sélectionnez une date future pour cette tâche</span>
                 </p>
               </div>
-              
+
               {dueDate && (
                 <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
                   <div className="flex items-center space-x-2 mb-2">
@@ -228,13 +238,22 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
+                      day: 'numeric',
                     })}
                   </p>
                   <div className="mt-2 flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-sm text-green-700 font-medium">
-                      Dans {Math.ceil((new Date(dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} jour{Math.ceil((new Date(dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) !== 1 ? 's' : ''}
+                      Dans{' '}
+                      {Math.ceil(
+                        (new Date(dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                      )}{' '}
+                      jour
+                      {Math.ceil(
+                        (new Date(dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                      ) !== 1
+                        ? 's'
+                        : ''}
                     </span>
                   </div>
                 </div>
@@ -244,11 +263,14 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
 
           {/* Description */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <Label htmlFor="description" className="text-lg font-semibold text-gray-900 flex items-center space-x-2 mb-4">
+            <Label
+              htmlFor="description"
+              className="text-lg font-semibold text-gray-900 flex items-center space-x-2 mb-4"
+            >
               <AlignLeft className="h-5 w-5 text-blue-600" />
               <span>Description</span>
             </Label>
-            
+
             <div className="space-y-3">
               <textarea
                 id="description"
@@ -257,21 +279,25 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
                 placeholder="Décrivez cette tâche en détail : objectifs, étapes, ressources nécessaires..."
                 className="w-full min-h-[160px] p-4 border-2 border-gray-300 rounded-lg resize-none focus:outline-none focus:ring-0 focus:border-blue-500 transition-all duration-200 text-base leading-relaxed"
               />
-              
+
               <div className="flex justify-between items-center text-sm">
                 <span className="text-gray-600">Ajoutez autant de détails que nécessaire</span>
-                <span className={`font-medium ${
-                  description.length > 500 ? 'text-orange-600' : 
-                  description.length > 0 ? 'text-blue-600' : 'text-gray-400'
-                }`}>
+                <span
+                  className={`font-medium ${
+                    description.length > 500
+                      ? 'text-orange-600'
+                      : description.length > 0
+                        ? 'text-blue-600'
+                        : 'text-gray-400'
+                  }`}
+                >
                   {description.length} caractères
                 </span>
               </div>
             </div>
           </div>
-
         </CardContent>
-        
+
         {/* Actions Bar */}
         <div className="bg-white border-t border-gray-200 px-6 py-4 flex justify-between items-center">
           <Button
@@ -282,17 +308,17 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
             <Trash2 className="h-4 w-4" />
             <span>Supprimer</span>
           </Button>
-          
+
           <div className="flex space-x-3">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={onClose}
               className="px-8 py-2 text-gray-700 border-gray-300 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
             >
               Annuler
             </Button>
-            <Button 
-              onClick={handleSave} 
+            <Button
+              onClick={handleSave}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 flex items-center space-x-2 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 font-medium"
             >
               <Save className="h-4 w-4" />

@@ -1,8 +1,8 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { AlignLeft, Calendar, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trash2, Calendar, AlignLeft } from 'lucide-react';
 
 interface DraggableCardProps {
   id: string;
@@ -26,24 +26,19 @@ const LABEL_COLORS: Record<string, string> = {
   gray: 'bg-gray-500',
 };
 
-export function DraggableCard({ 
-  id, 
-  title, 
-  description, 
-  labels = [], 
-  dueDate, 
-  onDelete, 
+export function DraggableCard({
+  id,
+  title,
+  description,
+  labels = [],
+  dueDate,
+  onDelete,
   onClick,
-  isReadOnly = false
+  isReadOnly = false,
 }: DraggableCardProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -52,12 +47,12 @@ export function DraggableCard({
   };
 
   const isOverdue = dueDate && new Date(dueDate) < new Date();
-  const isDueSoon = dueDate && !isOverdue && 
-    new Date(dueDate).getTime() - new Date().getTime() < 24 * 60 * 60 * 1000; // 24h
+  const isDueSoon =
+    dueDate && !isOverdue && new Date(dueDate).getTime() - Date.now() < 24 * 60 * 60 * 1000; // 24h
 
   return (
-    <Card 
-      ref={setNodeRef} 
+    <Card
+      ref={setNodeRef}
       style={style}
       {...attributes}
       {...(!isReadOnly && listeners)}
@@ -91,9 +86,7 @@ export function DraggableCard({
 
           {/* Titre et bouton delete */}
           <div className="flex items-start justify-between">
-            <p className="text-sm text-gray-900 flex-1 leading-relaxed font-medium">
-              {title}
-            </p>
+            <p className="text-sm text-gray-900 flex-1 leading-relaxed font-medium">{title}</p>
             {onDelete && (
               <Button
                 data-delete-button
@@ -120,16 +113,20 @@ export function DraggableCard({
 
           {/* Date d'échéance */}
           {dueDate && (
-            <div className={`flex items-center text-xs ${
-              isOverdue ? 'text-red-600 bg-red-50' : 
-              isDueSoon ? 'text-orange-600 bg-orange-50' : 
-              'text-gray-500'
-            } px-2 py-1 rounded`}>
+            <div
+              className={`flex items-center text-xs ${
+                isOverdue
+                  ? 'text-red-600 bg-red-50'
+                  : isDueSoon
+                    ? 'text-orange-600 bg-orange-50'
+                    : 'text-gray-500'
+              } px-2 py-1 rounded`}
+            >
               <Calendar className="h-3 w-3 mr-1" />
               <span>
                 {new Date(dueDate).toLocaleDateString('fr-FR', {
                   day: 'numeric',
-                  month: 'short'
+                  month: 'short',
                 })}
               </span>
               {isOverdue && <span className="ml-1 font-semibold">!</span>}

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export type User = {
@@ -18,16 +18,12 @@ export function useAuth() {
   // Simple function to check if we're on auth pages
   const isAuthPage = loc.pathname.startsWith('/login') || loc.pathname.startsWith('/signup');
 
-  useEffect(() => {
-    checkSession();
-  }, []);
-
-  const checkSession = async () => {
+  const checkSession = useCallback(async () => {
     try {
       const response = await fetch('http://localhost:4000/api/auth/session', {
         credentials: 'include',
       });
-      
+
       if (response.ok) {
         const session = await response.json();
         if (session?.user) {
@@ -49,7 +45,11 @@ export function useAuth() {
       setLoading(false);
       setInitialized(true);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -58,15 +58,15 @@ export function useAuth() {
       const csrfResponse = await fetch('http://localhost:4000/api/auth/csrf', {
         credentials: 'include',
       });
-      
+
       if (!csrfResponse.ok) {
         toast.dismiss(loadingToast);
         toast.error('Erreur de sécurité');
         return { success: false };
       }
-      
+
       const { csrfToken } = await csrfResponse.json();
-      
+
       await fetch('http://localhost:4000/api/auth/callback/credentials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -74,16 +74,16 @@ export function useAuth() {
           email,
           password,
           csrfToken,
-          callbackUrl: window.location.origin + '/dashboard',
+          callbackUrl: `${window.location.origin}/dashboard`,
         }),
         credentials: 'include',
         redirect: 'manual',
       });
-      
+
       const sessionResponse = await fetch('http://localhost:4000/api/auth/session', {
         credentials: 'include',
       });
-      
+
       if (sessionResponse.ok) {
         const session = await sessionResponse.json();
         if (session?.user) {
@@ -92,18 +92,17 @@ export function useAuth() {
             name: session.user.name,
             email: session.user.email,
           });
-          
+
           toast.dismiss(loadingToast);
           toast.success('Connexion réussie !');
           nav('/dashboard');
           return { success: true };
         }
       }
-      
+
       toast.dismiss(loadingToast);
       toast.error('Identifiants incorrects');
       return { success: false };
-      
     } catch {
       toast.error('Erreur de connexion');
       return { success: false };
@@ -113,27 +112,27 @@ export function useAuth() {
   const signOut = async () => {
     try {
       const loadingToast = toast.loading('Déconnexion...');
-      
+
       const csrfResponse = await fetch('http://localhost:4000/api/auth/csrf', {
         credentials: 'include',
       });
-      
+
       if (csrfResponse.ok) {
         const { csrfToken } = await csrfResponse.json();
-        
+
         await fetch('http://localhost:4000/api/auth/signout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({
             csrfToken,
-            callbackUrl: window.location.origin + '/login'
+            callbackUrl: `${window.location.origin}/login`,
           }),
           credentials: 'include',
         });
       }
-      
+
       setUser(null);
-      
+
       toast.dismiss(loadingToast);
       toast.success('Déconnexion réussie');
       nav('/login');
@@ -143,12 +142,12 @@ export function useAuth() {
     }
   };
 
-  return { 
+  return {
     user,
     loading,
     initialized,
     isAuthPage,
-    signIn, 
-    signOut 
+    signIn,
+    signOut,
   };
 }

@@ -1,37 +1,48 @@
-import { createClient, type RedisClientType } from 'redis'
+import { createClient, type RedisClientType } from 'redis';
 
-let redisClient: RedisClientType | null = null
+let redisClient: RedisClientType | null = null;
 
 export async function getRedisClient(): Promise<RedisClientType> {
   if (!redisClient) {
     redisClient = createClient({
       url: process.env.REDIS_URL || 'redis://localhost:6379',
       socket: {
-        reconnectStrategy: (retries) => Math.min(retries * 50, 1000),
+        reconnectStrategy: (retries) => {
+          if (retries > 5) return false; // Stop retrying after 5 attempts
+          return Math.min(retries * 50, 1000);
+        },
+        connectTimeout: 5000,
       },
-    })
+    });
 
     redisClient.on('error', (err) => {
-      console.error('Redis Client Error:', err)
-    })
+      console.error('Redis Client Error:', err);
+    });
 
     redisClient.on('connect', () => {
-      console.log('🔗 Redis connected')
-    })
+      console.log('🔗 Redis connected');
+    });
 
     redisClient.on('disconnect', () => {
-      console.log('🔌 Redis disconnected')
-    })
+      console.log('🔌 Redis disconnected');
+    });
 
-    await redisClient.connect()
+    try {
+      await redisClient.connect();
+      console.log('✅ Redis connection successful');
+    } catch (error) {
+      console.warn('⚠️ Redis connection failed, continuing without Redis:', error);
+      redisClient = null;
+      throw error;
+    }
   }
 
-  return redisClient
+  return redisClient;
 }
 
 export async function closeRedisConnection() {
   if (redisClient) {
-    await redisClient.disconnect()
-    redisClient = null
+    await redisClient.disconnect();
+    redisClient = null;
   }
 }

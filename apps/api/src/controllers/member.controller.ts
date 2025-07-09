@@ -1,8 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { prisma } from '../db.js';
 import { requireAuth } from '../utils/auth.js';
 import { checkBoardPermission } from '../utils/permissions.js';
-import { validateRequest, InviteUserSchema } from '../utils/validation.js';
+import { InviteUserSchema, validateRequest } from '../utils/validation.js';
 
 export class MemberController {
   /**
@@ -16,10 +16,10 @@ export class MemberController {
 
       // Check if user is owner of the board (only owners can invite)
       const board = await prisma.board.findUnique({
-        where: { 
+        where: {
           id: boardId,
-          ownerId: userId
-        }
+          ownerId: userId,
+        },
       });
 
       if (!board) {
@@ -28,15 +28,15 @@ export class MemberController {
       }
 
       // Find user by email
-      const invitedUser = await prisma.user.findUnique({ 
-        where: { email: data.email } 
+      const invitedUser = await prisma.user.findUnique({
+        where: { email: data.email },
       });
-      
+
       if (!invitedUser) {
-        res.status(404).json({ 
+        res.status(404).json({
           error: 'User not found',
           requiresSignup: true,
-          email: data.email
+          email: data.email,
         });
         return;
       }
@@ -52,9 +52,9 @@ export class MemberController {
         where: {
           boardId_userId: {
             boardId,
-            userId: invitedUser.id
-          }
-        }
+            userId: invitedUser.id,
+          },
+        },
       });
 
       if (existingMember) {
@@ -67,16 +67,15 @@ export class MemberController {
         data: {
           boardId,
           userId: invitedUser.id,
-          role: data.role
-        }
+          role: data.role,
+        },
       });
 
-      res.json({ 
-        success: true, 
-        message: `${invitedUser.name || invitedUser.email} has been added to the board` 
+      res.json({
+        success: true,
+        message: `${invitedUser.name || invitedUser.email} has been added to the board`,
       });
       return;
-
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === 'Unauthorized') {
@@ -112,16 +111,16 @@ export class MemberController {
         where: { id: boardId },
         include: {
           owner: {
-            select: { id: true, name: true, email: true, color: true }
+            select: { id: true, name: true, email: true, color: true },
           },
           members: {
             include: {
               user: {
-                select: { id: true, name: true, email: true, color: true }
-              }
-            }
-          }
-        }
+                select: { id: true, name: true, email: true, color: true },
+              },
+            },
+          },
+        },
       });
 
       if (!board) {
@@ -133,20 +132,19 @@ export class MemberController {
         {
           ...board.owner,
           role: 'owner',
-          joinedAt: board.createdAt
+          joinedAt: board.createdAt,
         },
         ...board.members
           .filter((member: any) => member.userId !== board.ownerId) // Éviter les doublons
           .map((member: any) => ({
             ...member.user,
             role: member.role,
-            joinedAt: member.joinedAt
-          }))
+            joinedAt: member.joinedAt,
+          })),
       ];
 
       res.json(members);
       return;
-
     } catch (error) {
       if (error instanceof Error && error.message === 'Unauthorized') {
         res.status(401).json({ error: 'Unauthorized' });
@@ -168,7 +166,7 @@ export class MemberController {
 
       // Check if current user is the owner of the board
       const board = await prisma.board.findUnique({
-        where: { id: boardId }
+        where: { id: boardId },
       });
 
       if (!board) {
@@ -192,9 +190,9 @@ export class MemberController {
         where: {
           boardId_userId: {
             boardId,
-            userId: targetUserId
-          }
-        }
+            userId: targetUserId,
+          },
+        },
       });
 
       res.json({ success: true });

@@ -7,7 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "start": "vite preview",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "biome check src/",
     "check": "tsc --noEmit",
     "test": "echo 'No frontend tests configured yet.'"
   },

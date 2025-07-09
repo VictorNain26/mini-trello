@@ -1,11 +1,11 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Edit2, GripVertical, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { Plus, Trash2, Edit2, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DroppableColumn } from './DroppableColumn';
 import { DraggableCard } from './DraggableCard';
+import { DroppableColumn } from './DroppableColumn';
 
 interface DraggableColumnProps {
   id: string;
@@ -50,19 +50,12 @@ export function DraggableColumn({
   const [editingTitle, setEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ 
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: `column-${id}`,
     data: {
       type: 'column',
       id,
-    }
+    },
   });
 
   const style = {
@@ -79,7 +72,7 @@ export function DraggableColumn({
   };
 
   return (
-    <div 
+    <div
       ref={setNodeRef}
       style={style}
       className={`bg-gray-50 rounded-xl p-4 min-w-[250px] sm:min-w-[280px] w-auto flex-shrink-0 border border-gray-200 shadow-sm self-start ${
@@ -120,7 +113,7 @@ export function DraggableColumn({
               />
             ) : (
               <div className="flex items-center space-x-2">
-                <h3 
+                <h3
                   className="font-semibold text-gray-900 cursor-pointer hover:text-gray-700"
                   onClick={() => {
                     setEditTitle(title);
@@ -136,7 +129,7 @@ export function DraggableColumn({
             )}
           </div>
         </div>
-        
+
         {!isReadOnly && (
           <div className="flex items-center space-x-1">
             <Button
@@ -163,10 +156,7 @@ export function DraggableColumn({
       </div>
 
       {/* Cards */}
-      <DroppableColumn 
-        id={id} 
-        items={cards.map(card => card.id)}
-      >
+      <DroppableColumn id={id} items={cards.map((card) => card.id)}>
         {cards.map((card) => (
           <DraggableCard
             key={card.id}
@@ -184,11 +174,11 @@ export function DraggableColumn({
 
       {/* Add Card */}
       {!isReadOnly && showNewCard ? (
-        <form 
+        <form
           onSubmit={(e) => {
             e.preventDefault();
             onCreateCard(newCardTitle);
-          }} 
+          }}
           className="space-y-3"
         >
           <Input
@@ -202,12 +192,7 @@ export function DraggableColumn({
             <Button type="submit" size="sm" className="bg-blue-600 hover:bg-blue-700">
               Ajouter
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onCancelNewCard}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={onCancelNewCard}>
               Annuler
             </Button>
           </div>

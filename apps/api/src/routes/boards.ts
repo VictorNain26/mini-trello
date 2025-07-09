@@ -1,4 +1,4 @@
-import { Router, RequestHandler } from 'express';
+import { type RequestHandler, Router } from 'express';
 import { BoardController } from '../controllers/board.controller.js';
 import { ColumnController } from '../controllers/column.controller.js';
 

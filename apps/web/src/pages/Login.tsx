@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { AlertCircle, Trello } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trello, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -18,7 +25,7 @@ export default function Login() {
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/dashboard';
   const { signIn, user, loading } = useAuth();
-  
+
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) {
@@ -28,11 +35,11 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation client
     if (!email || !password) {
       toast.error('Champs requis', {
-        description: 'Veuillez remplir tous les champs'
+        description: 'Veuillez remplir tous les champs',
       });
       return;
     }
@@ -113,30 +120,34 @@ export default function Login() {
                   Accédez à votre espace de travail
                 </CardDescription>
               </CardHeader>
-              
+
               <form onSubmit={handleSubmit}>
                 <CardContent className="space-y-4 px-6 lg:px-8">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700">Email</Label>
+                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+                      Email
+                    </Label>
                     <Input
                       id="email"
                       type="email"
                       placeholder="demo@demo.com"
                       value={email}
-                      onChange={e => setEmail(e.target.value)}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
                       className="h-11 text-sm border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-semibold text-gray-700">Mot de passe</Label>
+                    <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+                      Mot de passe
+                    </Label>
                     <Input
                       id="password"
                       type="password"
                       placeholder="demo"
                       value={password}
-                      onChange={e => setPassword(e.target.value)}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                       className="h-11 text-sm border-2 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
@@ -149,20 +160,20 @@ export default function Login() {
                     </div>
                   )}
                 </CardContent>
-                
+
                 <CardFooter className="flex flex-col space-y-4 px-6 lg:px-8 pb-6">
-                  <Button 
-                    type="submit" 
-                    className="w-full h-11 text-sm font-semibold bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg" 
+                  <Button
+                    type="submit"
+                    className="w-full h-11 text-sm font-semibold bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all shadow-lg"
                     disabled={submitting}
                   >
                     {submitting ? 'Connexion en cours...' : 'Se connecter'}
                   </Button>
-                  
+
                   <div className="text-center text-sm text-gray-600">
                     Pas encore de compte ?{' '}
-                    <Link 
-                      to="/signup" 
+                    <Link
+                      to="/signup"
                       className="text-blue-600 hover:text-blue-700 hover:underline font-semibold transition-colors"
                     >
                       Créer un compte
@@ -179,10 +190,16 @@ export default function Login() {
                   <p className="font-bold text-base text-blue-800">🚀 Compte de démonstration</p>
                   <div className="space-y-1 text-sm">
                     <p className="text-blue-700">
-                      Email: <code className="bg-blue-200 px-2 py-1 rounded-md font-mono text-blue-900 text-xs">demo@demo.com</code>
+                      Email:{' '}
+                      <code className="bg-blue-200 px-2 py-1 rounded-md font-mono text-blue-900 text-xs">
+                        demo@demo.com
+                      </code>
                     </p>
                     <p className="text-blue-700">
-                      Mot de passe: <code className="bg-blue-200 px-2 py-1 rounded-md font-mono text-blue-900 text-xs">demo</code>
+                      Mot de passe:{' '}
+                      <code className="bg-blue-200 px-2 py-1 rounded-md font-mono text-blue-900 text-xs">
+                        demo
+                      </code>
                     </p>
                   </div>
                 </div>

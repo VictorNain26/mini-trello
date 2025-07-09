@@ -1,28 +1,38 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { toast } from 'sonner';
-import { Plus, ArrowLeft, UserPlus, ChevronLeft, ChevronRight, Users, Crown, Shield, Trash2 } from 'lucide-react';
-import { 
-  DndContext, 
-  DragEndEvent, 
-  DragOverEvent,
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  type DragOverEvent,
   DragOverlay,
-  DragStartEvent,
+  type DragStartEvent,
   PointerSensor,
+  pointerWithin,
   useSensor,
   useSensors,
-  closestCenter,
-  pointerWithin
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { arrayMove, horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Crown,
+  Plus,
+  Shield,
+  Trash2,
+  UserPlus,
+  Users,
+} from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import { CardModal } from '@/components/CardModal';
+import { DraggableColumn } from '@/components/DraggableColumn';
+import { InviteModal } from '@/components/InviteModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
-import { DraggableColumn } from '@/components/DraggableColumn';
-import { CardModal } from '@/components/CardModal';
-import { InviteModal } from '@/components/InviteModal';
 
 interface CardItem {
   id: string;
@@ -88,17 +98,17 @@ export default function Board() {
   const collisionDetectionStrategy = useCallback((args: any) => {
     const { active, droppableContainers } = args;
     const activeId = active.id as string;
-    
+
     if (activeId.startsWith('column-')) {
       // For columns, use closestCenter to find the nearest column
       return closestCenter({
         ...args,
-        droppableContainers: droppableContainers.filter((container: any) => 
+        droppableContainers: droppableContainers.filter((container: any) =>
           container.id.startsWith('column-')
-        )
+        ),
       });
     }
-    
+
     // For cards, use pointerWithin for better precision
     return pointerWithin(args);
   }, []);
@@ -106,7 +116,7 @@ export default function Board() {
   const loadBoard = useCallback(async () => {
     try {
       const response = await fetch(`http://localhost:4000/api/boards/${id}`, {
-        credentials: 'include'
+        credentials: 'include',
       });
       if (response.ok) {
         const data = await response.json();
@@ -117,9 +127,9 @@ export default function Board() {
             ...col,
             cards: col.cards.map((card: any) => ({
               ...card,
-              columnId: col.id
-            }))
-          }))
+              columnId: col.id,
+            })),
+          })),
         };
         setBoard(processedData);
       } else {
@@ -134,19 +144,20 @@ export default function Board() {
 
   const loadMembers = useCallback(async () => {
     if (!id) return;
-    
+
     try {
       const response = await fetch(`http://localhost:4000/api/boards/${id}/members`, {
-        credentials: 'include'
+        credentials: 'include',
       });
       if (response.ok) {
         const data = await response.json();
         // Filtrer les doublons par ID au cas où
-        const uniqueMembers = data.filter((member: BoardMember, index: number, self: BoardMember[]) => 
-          self.findIndex(m => m.id === member.id) === index
+        const uniqueMembers = data.filter(
+          (member: BoardMember, index: number, self: BoardMember[]) =>
+            self.findIndex((m) => m.id === member.id) === index
         );
         setMembers(uniqueMembers);
-        
+
         // Déterminer le rôle de l'utilisateur actuel
         const currentUserMember = data.find((member: BoardMember) => member.email === user?.email);
         setUserRole(currentUserMember?.role || null);
@@ -163,7 +174,7 @@ export default function Board() {
     const { scrollLeft, scrollWidth, clientWidth } = container;
     setShowScrollIndicators({
       left: scrollLeft > 0,
-      right: scrollLeft < scrollWidth - clientWidth
+      right: scrollLeft < scrollWidth - clientWidth,
     });
   }, []);
 
@@ -186,25 +197,29 @@ export default function Board() {
       container.removeEventListener('scroll', updateScrollIndicators);
       window.removeEventListener('resize', updateScrollIndicators);
     };
-  }, [updateScrollIndicators, board]);
+  }, [updateScrollIndicators]);
 
   const createColumn = async (title: string) => {
     if (!title.trim() || !board || userRole === 'reader') return;
-    
+
     try {
       const response = await fetch(`http://localhost:4000/api/boards/${board.id}/columns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title.trim() }),
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
         const newColumn = await response.json();
-        setBoard(prev => prev ? {
-          ...prev,
-          columns: [...prev.columns, { ...newColumn, cards: [] }]
-        } : null);
+        setBoard((prev) =>
+          prev
+            ? {
+                ...prev,
+                columns: [...prev.columns, { ...newColumn, cards: [] }],
+              }
+            : null
+        );
         setNewColumnTitle('');
         setShowNewColumn(false);
         toast.success('Colonne créée !');
@@ -217,19 +232,24 @@ export default function Board() {
   };
 
   const deleteColumn = async (columnId: string) => {
-    if (userRole === 'reader' || !confirm('Êtes-vous sûr de vouloir supprimer cette colonne ?')) return;
+    if (userRole === 'reader' || !confirm('Êtes-vous sûr de vouloir supprimer cette colonne ?'))
+      return;
 
     try {
       const response = await fetch(`http://localhost:4000/api/columns/${columnId}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
-        setBoard(prev => prev ? {
-          ...prev,
-          columns: prev.columns.filter(col => col.id !== columnId)
-        } : null);
+        setBoard((prev) =>
+          prev
+            ? {
+                ...prev,
+                columns: prev.columns.filter((col) => col.id !== columnId),
+              }
+            : null
+        );
         toast.success('Colonne supprimée !');
       } else {
         toast.error('Erreur lors de la suppression');
@@ -241,25 +261,29 @@ export default function Board() {
 
   const createCard = async (columnId: string, title: string) => {
     if (!title.trim() || userRole === 'reader') return;
-    
+
     try {
       const response = await fetch(`http://localhost:4000/api/columns/${columnId}/cards`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title.trim() }),
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
         const newCard = await response.json();
-        setBoard(prev => prev ? {
-          ...prev,
-          columns: prev.columns.map(col => 
-            col.id === columnId 
-              ? { ...col, cards: [...col.cards, { ...newCard, columnId }] }
-              : col
-          )
-        } : null);
+        setBoard((prev) =>
+          prev
+            ? {
+                ...prev,
+                columns: prev.columns.map((col) =>
+                  col.id === columnId
+                    ? { ...col, cards: [...col.cards, { ...newCard, columnId }] }
+                    : col
+                ),
+              }
+            : null
+        );
         setNewCardTitle('');
         setShowNewCard(null);
         toast.success('Carte créée !');
@@ -273,11 +297,11 @@ export default function Board() {
 
   const deleteBoard = async () => {
     if (!board) return;
-    
+
     try {
       const response = await fetch(`http://localhost:4000/api/boards/${board.id}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -293,18 +317,21 @@ export default function Board() {
 
   const removeMember = async (userId: string) => {
     if (!board) return;
-    
+
     try {
-      const response = await fetch(`http://localhost:4000/api/boards/${board.id}/members/${userId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+      const response = await fetch(
+        `http://localhost:4000/api/boards/${board.id}/members/${userId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
-        setMembers(prev => prev.filter(member => member.id !== userId));
+        setMembers((prev) => prev.filter((member) => member.id !== userId));
         toast.success('Membre expulsé !');
       } else {
-        toast.error('Erreur lors de l\'expulsion');
+        toast.error("Erreur lors de l'expulsion");
       }
     } catch {
       toast.error('Erreur réseau');
@@ -312,22 +339,27 @@ export default function Board() {
   };
 
   const deleteCard = async (cardId: string) => {
-    if (userRole === 'reader' || !confirm('Êtes-vous sûr de vouloir supprimer cette carte ?')) return;
+    if (userRole === 'reader' || !confirm('Êtes-vous sûr de vouloir supprimer cette carte ?'))
+      return;
 
     try {
       const response = await fetch(`http://localhost:4000/api/cards/${cardId}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
-        setBoard(prev => prev ? {
-          ...prev,
-          columns: prev.columns.map(col => ({
-            ...col,
-            cards: col.cards.filter(card => card.id !== cardId)
-          }))
-        } : null);
+        setBoard((prev) =>
+          prev
+            ? {
+                ...prev,
+                columns: prev.columns.map((col) => ({
+                  ...col,
+                  cards: col.cards.filter((card) => card.id !== cardId),
+                })),
+              }
+            : null
+        );
         toast.success('Carte supprimée !');
       } else {
         toast.error('Erreur lors de la suppression');
@@ -339,10 +371,10 @@ export default function Board() {
 
   const handleDragStart = (event: DragStartEvent) => {
     if (userRole === 'reader') return;
-    
+
     const { active } = event;
     const activeId = active.id as string;
-    
+
     if (activeId.startsWith('column-')) {
       const columnId = activeId.replace('column-', '');
       const column = findColumnById(columnId);
@@ -372,7 +404,7 @@ export default function Board() {
     // Handle column drag & drop
     if (activeId.startsWith('column-')) {
       const activeColumnId = activeId.replace('column-', '');
-      
+
       // Determine the target column ID
       let overColumnId = null;
       if (overId.startsWith('column-')) {
@@ -389,18 +421,18 @@ export default function Board() {
           overColumnId = overColumn?.id;
         }
       }
-      
+
       if (activeColumnId && overColumnId && activeColumnId !== overColumnId) {
-        const activeIndex = board.columns.findIndex(col => col.id === activeColumnId);
-        const overIndex = board.columns.findIndex(col => col.id === overColumnId);
-        
+        const activeIndex = board.columns.findIndex((col) => col.id === activeColumnId);
+        const overIndex = board.columns.findIndex((col) => col.id === overColumnId);
+
         if (activeIndex !== -1 && overIndex !== -1) {
-          setBoard(prev => {
+          setBoard((prev) => {
             if (!prev) return prev;
-            
+
             return {
               ...prev,
-              columns: arrayMove(prev.columns, activeIndex, overIndex)
+              columns: arrayMove(prev.columns, activeIndex, overIndex),
             };
           });
 
@@ -410,7 +442,7 @@ export default function Board() {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ order: overIndex }),
-              credentials: 'include'
+              credentials: 'include',
             });
           } catch {
             toast.error('Erreur lors du déplacement');
@@ -433,24 +465,24 @@ export default function Board() {
 
     if (activeColumn.id === overColumn.id) {
       // Reordering within the same column
-      const activeIndex = activeColumn.cards.findIndex(card => card.id === activeId);
-      const overIndex = activeColumn.cards.findIndex(card => card.id === overId);
+      const activeIndex = activeColumn.cards.findIndex((card) => card.id === activeId);
+      const overIndex = activeColumn.cards.findIndex((card) => card.id === overId);
 
       if (activeIndex !== overIndex) {
-        setBoard(prev => {
+        setBoard((prev) => {
           if (!prev) return prev;
-          
+
           return {
             ...prev,
-            columns: prev.columns.map(col => {
+            columns: prev.columns.map((col) => {
               if (col.id === activeColumn.id) {
                 return {
                   ...col,
-                  cards: arrayMove(col.cards, activeIndex, overIndex)
+                  cards: arrayMove(col.cards, activeIndex, overIndex),
                 };
               }
               return col;
-            })
+            }),
           };
         });
 
@@ -460,11 +492,11 @@ export default function Board() {
           await fetch(`http://localhost:4000/api/cards/${activeId}/move`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              columnId: activeColumn.id, 
-              order: newOrder 
+            body: JSON.stringify({
+              columnId: activeColumn.id,
+              order: newOrder,
             }),
-            credentials: 'include'
+            credentials: 'include',
           });
         } catch {
           toast.error('Erreur lors du déplacement');
@@ -473,22 +505,22 @@ export default function Board() {
       }
     } else {
       // Moving to different column
-      const overIndex = overCard ? 
-        overColumn.cards.findIndex(card => card.id === overId) : 
-        overColumn.cards.length;
+      const overIndex = overCard
+        ? overColumn.cards.findIndex((card) => card.id === overId)
+        : overColumn.cards.length;
 
       // Mise à jour optimiste immédiate
-      setBoard(prev => {
+      setBoard((prev) => {
         if (!prev) return prev;
 
         return {
           ...prev,
-          columns: prev.columns.map(col => {
+          columns: prev.columns.map((col) => {
             if (col.id === activeColumn.id) {
               // Retirer la carte de la colonne source
               return {
                 ...col,
-                cards: col.cards.filter(card => card.id !== activeId)
+                cards: col.cards.filter((card) => card.id !== activeId),
               };
             }
             if (col.id === overColumn.id) {
@@ -497,11 +529,11 @@ export default function Board() {
               newCards.splice(overIndex, 0, { ...activeCard, columnId: overColumn.id });
               return {
                 ...col,
-                cards: newCards
+                cards: newCards,
               };
             }
             return col;
-          })
+          }),
         };
       });
 
@@ -510,11 +542,11 @@ export default function Board() {
         await fetch(`http://localhost:4000/api/cards/${activeId}/move`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            columnId: overColumn.id, 
-            order: overIndex 
+          body: JSON.stringify({
+            columnId: overColumn.id,
+            order: overIndex,
           }),
-          credentials: 'include'
+          credentials: 'include',
         });
       } catch {
         toast.error('Erreur lors du déplacement');
@@ -525,9 +557,9 @@ export default function Board() {
 
   const findCardById = (id: string): CardItem | null => {
     if (!board) return null;
-    
+
     for (const column of board.columns) {
-      const card = column.cards.find(card => card.id === id);
+      const card = column.cards.find((card) => card.id === id);
       if (card) return card;
     }
     return null;
@@ -535,36 +567,38 @@ export default function Board() {
 
   const findColumnByCardId = (cardId: string): Column | null => {
     if (!board) return null;
-    
-    return board.columns.find(col => 
-      col.cards.some(card => card.id === cardId)
-    ) || null;
+
+    return board.columns.find((col) => col.cards.some((card) => card.id === cardId)) || null;
   };
 
   const findColumnById = (id: string): Column | null => {
     if (!board) return null;
-    
-    return board.columns.find(col => col.id === id) || null;
+
+    return board.columns.find((col) => col.id === id) || null;
   };
 
   const updateColumnTitle = async (columnId: string, newTitle: string) => {
     if (!newTitle.trim() || userRole === 'reader') return;
-    
+
     try {
       const response = await fetch(`http://localhost:4000/api/columns/${columnId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newTitle.trim() }),
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
-        setBoard(prev => prev ? {
-          ...prev,
-          columns: prev.columns.map(col => 
-            col.id === columnId ? { ...col, title: newTitle.trim() } : col
-          )
-        } : null);
+        setBoard((prev) =>
+          prev
+            ? {
+                ...prev,
+                columns: prev.columns.map((col) =>
+                  col.id === columnId ? { ...col, title: newTitle.trim() } : col
+                ),
+              }
+            : null
+        );
         toast.success('Colonne mise à jour !');
       } else {
         toast.error('Erreur lors de la mise à jour');
@@ -580,19 +614,21 @@ export default function Board() {
   };
 
   const handleCardUpdate = (cardId: string, updates: any) => {
-    setBoard(prev => prev ? {
-      ...prev,
-      columns: prev.columns.map(col => ({
-        ...col,
-        cards: col.cards.map(card => 
-          card.id === cardId ? { ...card, ...updates } : card
-        )
-      }))
-    } : null);
-    
+    setBoard((prev) =>
+      prev
+        ? {
+            ...prev,
+            columns: prev.columns.map((col) => ({
+              ...col,
+              cards: col.cards.map((card) => (card.id === cardId ? { ...card, ...updates } : card)),
+            })),
+          }
+        : null
+    );
+
     // Update selectedCard if it's the same card
     if (selectedCard?.id === cardId) {
-      setSelectedCard(prev => prev ? { ...prev, ...updates } : null);
+      setSelectedCard((prev) => (prev ? { ...prev, ...updates } : null));
     }
   };
 
@@ -600,17 +636,21 @@ export default function Board() {
     try {
       const response = await fetch(`http://localhost:4000/api/cards/${cardId}`, {
         method: 'DELETE',
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
-        setBoard(prev => prev ? {
-          ...prev,
-          columns: prev.columns.map(col => ({
-            ...col,
-            cards: col.cards.filter(card => card.id !== cardId)
-          }))
-        } : null);
+        setBoard((prev) =>
+          prev
+            ? {
+                ...prev,
+                columns: prev.columns.map((col) => ({
+                  ...col,
+                  cards: col.cards.filter((card) => card.id !== cardId),
+                })),
+              }
+            : null
+        );
         toast.success('Carte supprimée !');
       } else {
         toast.error('Erreur lors de la suppression');
@@ -642,7 +682,7 @@ export default function Board() {
   }
 
   return (
-    <DndContext 
+    <DndContext
       sensors={sensors}
       collisionDetection={collisionDetectionStrategy}
       onDragStart={handleDragStart}
@@ -667,7 +707,11 @@ export default function Board() {
                     variant="destructive"
                     size="sm"
                     onClick={() => {
-                      if (confirm('Êtes-vous sûr de vouloir supprimer ce tableau ? Cette action est irréversible.')) {
+                      if (
+                        confirm(
+                          'Êtes-vous sûr de vouloir supprimer ce tableau ? Cette action est irréversible.'
+                        )
+                      ) {
                         deleteBoard();
                       }
                     }}
@@ -677,7 +721,7 @@ export default function Board() {
                   </Button>
                 )}
               </div>
-              
+
               <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
                 {/* Board Members */}
                 <div className="flex items-center space-x-1 sm:space-x-2">
@@ -700,12 +744,16 @@ export default function Board() {
                           <Shield className="h-3 w-3 absolute -top-1 left-1/2 transform -translate-x-1/2 text-blue-400" />
                         )}
                         {member.name?.charAt(0) || member.email?.charAt(0) || 'U'}
-                        
+
                         {/* Remove member button for owner */}
                         {userRole === 'owner' && member.role !== 'owner' && (
                           <button
                             onClick={() => {
-                              if (confirm(`Êtes-vous sûr de vouloir expulser ${member.name || member.email} ?`)) {
+                              if (
+                                confirm(
+                                  `Êtes-vous sûr de vouloir expulser ${member.name || member.email} ?`
+                                )
+                              ) {
                                 removeMember(member.id);
                               }
                             }}
@@ -735,7 +783,7 @@ export default function Board() {
                     <span className="hidden sm:inline">Inviter</span>
                   </Button>
                 )}
-                
+
                 <div className="flex items-center space-x-2 min-w-0">
                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-white font-medium text-sm">
@@ -746,8 +794,13 @@ export default function Board() {
                     {user?.name || user?.email}
                   </span>
                 </div>
-                
-                <Button variant="outline" size="sm" onClick={() => signOut()} className="whitespace-nowrap">
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => signOut()}
+                  className="whitespace-nowrap"
+                >
                   <span className="hidden sm:inline">Déconnexion</span>
                   <span className="sm:hidden">✕</span>
                 </Button>
@@ -769,45 +822,48 @@ export default function Board() {
               <ChevronRight className="h-6 w-6 text-gray-400" />
             </div>
           )}
-          
-          <div ref={scrollContainerRef} className="flex items-start space-x-6 overflow-x-auto pb-6 scrollbar-hide">
+
+          <div
+            ref={scrollContainerRef}
+            className="flex items-start space-x-6 overflow-x-auto pb-6 scrollbar-hide"
+          >
             {/* Columns with SortableContext */}
-            <SortableContext 
-              items={board.columns.map(col => `column-${col.id}`)} 
+            <SortableContext
+              items={board.columns.map((col) => `column-${col.id}`)}
               strategy={horizontalListSortingStrategy}
             >
-                  {board.columns.map((column) => (
-                  <DraggableColumn
-                    key={column.id}
-                    id={column.id}
-                    title={column.title}
-                    cards={column.cards}
-                    showNewCard={showNewCard === column.id}
-                    newCardTitle={newCardTitle}
-                    onNewCardTitleChange={setNewCardTitle}
-                    onCreateCard={(title) => createCard(column.id, title)}
-                    onCancelNewCard={() => {
-                      setShowNewCard(null);
-                      setNewCardTitle('');
-                    }}
-                    onShowNewCard={() => setShowNewCard(column.id)}
-                    onDeleteColumn={() => deleteColumn(column.id)}
-                    onEditColumn={(newTitle) => updateColumnTitle(column.id, newTitle)}
-                    onDeleteCard={deleteCard}
-                    onCardClick={handleCardClick}
-                    isReadOnly={userRole === 'reader'}
-                  />
-                ))}
+              {board.columns.map((column) => (
+                <DraggableColumn
+                  key={column.id}
+                  id={column.id}
+                  title={column.title}
+                  cards={column.cards}
+                  showNewCard={showNewCard === column.id}
+                  newCardTitle={newCardTitle}
+                  onNewCardTitleChange={setNewCardTitle}
+                  onCreateCard={(title) => createCard(column.id, title)}
+                  onCancelNewCard={() => {
+                    setShowNewCard(null);
+                    setNewCardTitle('');
+                  }}
+                  onShowNewCard={() => setShowNewCard(column.id)}
+                  onDeleteColumn={() => deleteColumn(column.id)}
+                  onEditColumn={(newTitle) => updateColumnTitle(column.id, newTitle)}
+                  onDeleteCard={deleteCard}
+                  onCardClick={handleCardClick}
+                  isReadOnly={userRole === 'reader'}
+                />
+              ))}
             </SortableContext>
 
             {/* Add Column */}
             {(userRole === 'owner' || userRole === 'editor') && showNewColumn ? (
               <div className="bg-gray-50 rounded-xl p-4 min-w-[250px] sm:min-w-[280px] w-auto flex-shrink-0 border border-gray-200 shadow-sm self-start">
-                <form 
+                <form
                   onSubmit={(e) => {
                     e.preventDefault();
                     createColumn(newColumnTitle);
-                  }} 
+                  }}
                   className="space-y-4"
                 >
                   <div>
@@ -839,7 +895,7 @@ export default function Board() {
                   </div>
                 </form>
               </div>
-            ) : (userRole === 'owner' || userRole === 'editor') ? (
+            ) : userRole === 'owner' || userRole === 'editor' ? (
               <div className="min-w-[250px] sm:min-w-[280px] w-auto flex-shrink-0 self-start">
                 <Button
                   onClick={() => setShowNewColumn(true)}

@@ -1,4 +1,4 @@
-import { Router, RequestHandler } from 'express';
+import { type RequestHandler, Router } from 'express';
 import { MemberController } from '../controllers/member.controller.js';
 
 const router: Router = Router();

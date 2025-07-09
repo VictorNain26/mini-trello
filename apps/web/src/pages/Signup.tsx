@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { AlertCircle, CheckCircle, Trello } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trello, AlertCircle, CheckCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -17,7 +24,7 @@ export default function Signup() {
   const [success, setSuccess] = useState(false);
   const nav = useNavigate();
   const { user, loading } = useAuth();
-  
+
   // Redirect if already logged in
   useEffect(() => {
     if (!loading && user) {
@@ -27,18 +34,18 @@ export default function Signup() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation client
     if (!email || !password) {
       toast.error('Champs requis', {
-        description: 'Email et mot de passe sont obligatoires'
+        description: 'Email et mot de passe sont obligatoires',
       });
       return;
     }
 
     if (password.length < 6) {
       toast.error('Mot de passe trop court', {
-        description: 'Le mot de passe doit contenir au moins 6 caractères'
+        description: 'Le mot de passe doit contenir au moins 6 caractères',
       });
       return;
     }
@@ -48,7 +55,7 @@ export default function Signup() {
 
     // Show loading toast
     const loadingToast = toast.loading('Création du compte...', {
-      description: 'Préparation de votre espace de travail'
+      description: 'Préparation de votre espace de travail',
     });
 
     try {
@@ -65,7 +72,7 @@ export default function Signup() {
       if (response.ok) {
         setSuccess(true);
         toast.success('Compte créé avec succès !', {
-          description: 'Redirection vers la page de connexion...'
+          description: 'Redirection vers la page de connexion...',
         });
         setTimeout(() => nav('/login'), 2000);
       } else {
@@ -73,7 +80,7 @@ export default function Signup() {
         const errorMsg = result.error || 'Erreur lors de la création du compte';
         setError(errorMsg);
         toast.error('Erreur de création', {
-          description: errorMsg
+          description: errorMsg,
         });
       }
     } catch {
@@ -82,7 +89,7 @@ export default function Signup() {
       const errorMsg = 'Erreur de connexion au serveur';
       setError(errorMsg);
       toast.error('Erreur réseau', {
-        description: 'Vérifiez votre connexion internet'
+        description: 'Vérifiez votre connexion internet',
       });
     }
   };
@@ -146,11 +153,13 @@ export default function Signup() {
                   Rejoignez notre communauté
                 </CardDescription>
               </CardHeader>
-              
+
               <form onSubmit={submit}>
                 <CardContent className="space-y-4 px-6 lg:px-8">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Nom (optionnel)</Label>
+                    <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
+                      Nom (optionnel)
+                    </Label>
                     <Input
                       id="name"
                       type="text"
@@ -162,7 +171,9 @@ export default function Signup() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700">Email</Label>
+                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+                      Email
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -173,9 +184,11 @@ export default function Signup() {
                       className="h-11 text-sm border-2 border-gray-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
                     />
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-semibold text-gray-700">Mot de passe</Label>
+                    <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+                      Mot de passe
+                    </Label>
                     <Input
                       id="password"
                       type="password"
@@ -200,24 +213,30 @@ export default function Signup() {
                   {success && (
                     <div className="flex items-center space-x-2 p-3 bg-green-50 border border-green-200 rounded-lg">
                       <CheckCircle className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      <p className="text-sm text-green-700 font-medium">Compte créé avec succès ! Redirection...</p>
+                      <p className="text-sm text-green-700 font-medium">
+                        Compte créé avec succès ! Redirection...
+                      </p>
                     </div>
                   )}
                 </CardContent>
-                
+
                 <CardFooter className="flex flex-col space-y-4 px-6 lg:px-8 pb-6">
-                  <Button 
-                    type="submit" 
-                    className="w-full h-11 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-200 transition-all shadow-lg" 
+                  <Button
+                    type="submit"
+                    className="w-full h-11 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:ring-emerald-200 transition-all shadow-lg"
                     disabled={submitting || success}
                   >
-                    {submitting ? 'Création en cours...' : success ? 'Compte créé !' : 'Créer le compte'}
+                    {submitting
+                      ? 'Création en cours...'
+                      : success
+                        ? 'Compte créé !'
+                        : 'Créer le compte'}
                   </Button>
-                  
+
                   <div className="text-center text-sm text-gray-600">
                     Déjà un compte ?{' '}
-                    <Link 
-                      to="/login" 
+                    <Link
+                      to="/login"
                       className="text-emerald-600 hover:text-emerald-700 hover:underline font-semibold transition-colors"
                     >
                       Se connecter

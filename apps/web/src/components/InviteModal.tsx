@@ -1,10 +1,10 @@
+import { AlertCircle, Mail, Send, Shield, User, UserPlus, X } from 'lucide-react';
 import { useState } from 'react';
-import { X, Mail, UserPlus, Send, AlertCircle, Shield, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface InviteModalProps {
   boardId: string;
@@ -14,14 +14,20 @@ interface InviteModalProps {
   onInviteSuccess: () => void;
 }
 
-export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSuccess }: InviteModalProps) {
+export function InviteModal({
+  boardId,
+  boardTitle,
+  isOpen,
+  onClose,
+  onInviteSuccess,
+}: InviteModalProps) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<'editor' | 'reader'>('reader');
   const [loading, setLoading] = useState(false);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
       toast.error('Veuillez entrer un email');
       return;
@@ -39,11 +45,11 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
       const response = await fetch(`http://localhost:4000/api/boards/${boardId}/invite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email: email.trim().toLowerCase(),
-          role: role
+          role: role,
         }),
-        credentials: 'include'
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -60,7 +66,7 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
           { duration: 5000 }
         );
       } else {
-        toast.error(data.error || 'Erreur lors de l\'invitation');
+        toast.error(data.error || "Erreur lors de l'invitation");
       }
     } catch {
       toast.error('Erreur réseau');
@@ -84,20 +90,23 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
               <p className="text-sm text-gray-600 mt-1">Board : {boardTitle}</p>
             </div>
           </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onClose} 
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
             className="rounded-full h-10 w-10 p-0 hover:bg-gray-100 text-gray-500 hover:text-gray-700"
           >
             <X className="h-5 w-5" />
           </Button>
         </CardHeader>
-        
+
         <CardContent className="p-6">
           <form onSubmit={handleInvite} className="space-y-6">
             <div className="space-y-3">
-              <Label htmlFor="invite-email" className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+              <Label
+                htmlFor="invite-email"
+                className="text-lg font-semibold text-gray-900 flex items-center space-x-2"
+              >
                 <Mail className="h-5 w-5 text-blue-600" />
                 <span>Adresse email</span>
               </Label>
@@ -113,7 +122,10 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
               />
               <p className="text-sm text-gray-600 flex items-start space-x-2">
                 <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                <span>La personne invitée doit avoir un compte pour rejoindre le board. Si elle n'en a pas, elle devra s'inscrire d'abord.</span>
+                <span>
+                  La personne invitée doit avoir un compte pour rejoindre le board. Si elle n'en a
+                  pas, elle devra s'inscrire d'abord.
+                </span>
               </p>
             </div>
 
@@ -127,8 +139,8 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
                   type="button"
                   onClick={() => setRole('reader')}
                   className={`p-3 rounded-lg border-2 transition-all ${
-                    role === 'reader' 
-                      ? 'border-blue-500 bg-blue-50' 
+                    role === 'reader'
+                      ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-300 hover:border-gray-400'
                   }`}
                 >
@@ -144,8 +156,8 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
                   type="button"
                   onClick={() => setRole('editor')}
                   className={`p-3 rounded-lg border-2 transition-all ${
-                    role === 'editor' 
-                      ? 'border-blue-500 bg-blue-50' 
+                    role === 'editor'
+                      ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-300 hover:border-gray-400'
                   }`}
                 >
@@ -161,22 +173,22 @@ export function InviteModal({ boardId, boardTitle, isOpen, onClose, onInviteSucc
             </div>
 
             <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-              <Button 
+              <Button
                 type="button"
-                variant="outline" 
+                variant="outline"
                 onClick={onClose}
                 disabled={loading}
                 className="px-6 hover:bg-gray-50"
               >
                 Annuler
               </Button>
-              <Button 
+              <Button
                 type="submit"
                 disabled={loading || !email.trim()}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 flex items-center space-x-2 shadow-lg transition-all duration-200"
               >
                 <Send className="h-4 w-4" />
-                <span>{loading ? 'Envoi...' : 'Envoyer l\'invitation'}</span>
+                <span>{loading ? 'Envoi...' : "Envoyer l'invitation"}</span>
               </Button>
             </div>
           </form>

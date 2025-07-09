@@ -1,16 +1,12 @@
+import { getSession } from '@auth/express';
+import type { Prisma } from '@prisma/client';
 import type { inferAsyncReturnType } from '@trpc/server';
 import type { Request, Response } from 'express';
 import type { Server as IOServer } from 'socket.io';
-import { Prisma } from '@prisma/client';
-import { getSession } from '@auth/express';
 import { authConfig } from './config/auth.simple.js';
 import { prisma } from './db.js';
 
-export async function createContext(opts: {
-  req: Request;
-  res: Response;
-  io?: IOServer;
-}) {
+export async function createContext(opts: { req: Request; res: Response; io?: IOServer }) {
   try {
     const session = await getSession(opts.req, authConfig);
     return { ...opts, prisma, session };

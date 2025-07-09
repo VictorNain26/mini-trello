@@ -1,6 +1,6 @@
-import { Router, RequestHandler } from 'express';
-import { ColumnController } from '../controllers/column.controller.js';
+import { type RequestHandler, Router } from 'express';
 import { CardController } from '../controllers/card.controller.js';
+import { ColumnController } from '../controllers/column.controller.js';
 
 const router: Router = Router();
 

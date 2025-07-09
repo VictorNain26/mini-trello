@@ -51,14 +51,15 @@
   * {
     border-color: hsl(var(--border));
   }
-  
-  html, body {
+
+  html,
+  body {
     height: 100%;
     overflow: hidden;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
-  
+
   #root {
     height: 100vh;
     overflow: hidden;
@@ -66,7 +67,9 @@
 }
 
 @layer utilities {
-  .scrollbars-none { scrollbar-width: none; }
+  .scrollbars-none {
+    scrollbar-width: none;
+  }
   .scrollbar-hide {
     scrollbar-width: none;
     -ms-overflow-style: none;
