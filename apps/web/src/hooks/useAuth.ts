@@ -23,7 +23,7 @@ export function useAuth() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/session`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/session`, {
         credentials: 'include',
         signal: controller.signal,
       });
@@ -65,7 +65,7 @@ export function useAuth() {
     try {
       const loadingToast = toast.loading('Connexion en cours...');
 
-      const csrfResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/csrf`, {
+      const csrfResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/csrf`, {
         credentials: 'include',
       });
 
@@ -77,7 +77,7 @@ export function useAuth() {
 
       const { csrfToken } = await csrfResponse.json();
 
-      await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/callback/credentials`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/auth/callback/credentials`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -90,7 +90,7 @@ export function useAuth() {
         redirect: 'manual',
       });
 
-      const sessionResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/session`, {
+      const sessionResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/session`, {
         credentials: 'include',
       });
 
@@ -123,14 +123,14 @@ export function useAuth() {
     try {
       const loadingToast = toast.loading('Déconnexion...');
 
-      const csrfResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/csrf`, {
+      const csrfResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/csrf`, {
         credentials: 'include',
       });
 
       if (csrfResponse.ok) {
         const { csrfToken } = await csrfResponse.json();
 
-        await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/signout`, {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/auth/signout`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({
