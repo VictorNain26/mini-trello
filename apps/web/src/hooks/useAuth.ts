@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { isAuthError } from '../utils/auth';
 
 export type User = {
   id: string;
@@ -19,7 +18,6 @@ export function useAuth() {
   const nav = useNavigate();
   const loc = useLocation();
 
-  // Simple function to check if we're on auth pages
   const isAuthPage = loc.pathname.startsWith('/login') || loc.pathname.startsWith('/signup');
 
   // Check if session is still valid based on expiry
@@ -77,19 +75,15 @@ export function useAuth() {
       }
 
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
-
         const response = await fetch(
           `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/session`,
           {
             credentials: 'include',
-            signal: controller.signal,
-            cache: 'no-cache',
+            headers: {
+              'Content-Type': 'application/json',
+            },
           }
         );
-
-        clearTimeout(timeoutId);
 
         if (response.ok) {
           const session = await response.json();
@@ -108,20 +102,14 @@ export function useAuth() {
         } else {
           setUser(null);
           clearSession();
-          // Handle auth errors (401, etc.)
-          if (isAuthError({ status: response.status })) {
-            if (!isAuthPage) {
-              toast.error('Session expirée. Veuillez vous reconnecter.');
-              nav('/login');
-            }
+          
+          if (response.status === 401 && !isAuthPage) {
+            toast.error('Session expirée. Veuillez vous reconnecter.');
+            nav('/login');
           }
         }
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.warn('Session check timed out');
-        } else {
-          console.error('Session check failed:', error);
-        }
+        console.error('Session check failed:', error);
         // Don't clear session on network error, keep cached version
         if (!loadStoredSession()) {
           setUser(null);
@@ -138,24 +126,11 @@ export function useAuth() {
     checkSession();
   }, [checkSession]);
 
-  // Refresh session periodically (every 2 hours)
-  useEffect(() => {
-    const interval = setInterval(
-      () => {
-        if (user && !isAuthPage) {
-          checkSession(true);
-        }
-      },
-      2 * 60 * 60 * 1000
-    ); // 2 hours
-
-    return () => clearInterval(interval);
-  }, [user, isAuthPage, checkSession]);
-
   const signIn = async (email: string, password: string) => {
     try {
       const loadingToast = toast.loading('Connexion en cours...');
 
+      // Get CSRF token first
       const csrfResponse = await fetch(
         `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/csrf`,
         {
@@ -164,18 +139,19 @@ export function useAuth() {
       );
 
       if (!csrfResponse.ok) {
-        toast.dismiss(loadingToast);
-        toast.error('Erreur de sécurité');
-        return { success: false };
+        throw new Error('Failed to get CSRF token');
       }
 
       const { csrfToken } = await csrfResponse.json();
 
+      // Sign in with credentials
       await fetch(
         `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/callback/credentials`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
           body: new URLSearchParams({
             email,
             password,
@@ -187,35 +163,21 @@ export function useAuth() {
         }
       );
 
-      const sessionResponse = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/session`,
-        {
-          credentials: 'include',
-        }
-      );
-
-      if (sessionResponse.ok) {
-        const session = await sessionResponse.json();
-        if (session?.user) {
-          const userData = {
-            id: session.user.id,
-            name: session.user.name,
-            email: session.user.email,
-          };
-          setUser(userData);
-          saveSession(userData);
-
-          toast.dismiss(loadingToast);
-          toast.success('Connexion réussie !');
-          nav('/dashboard');
-          return { success: true };
-        }
-      }
+      // Check if sign in was successful by checking session
+      await checkSession(true);
 
       toast.dismiss(loadingToast);
-      toast.error('Identifiants incorrects');
-      return { success: false };
-    } catch {
+
+      if (user) {
+        toast.success('Connexion réussie !');
+        nav('/dashboard');
+        return { success: true };
+      } else {
+        toast.error('Identifiants incorrects');
+        return { success: false };
+      }
+    } catch (error) {
+      console.error('Sign in error:', error);
       toast.error('Erreur de connexion');
       return { success: false };
     }
@@ -225,6 +187,7 @@ export function useAuth() {
     try {
       const loadingToast = toast.loading('Déconnexion...');
 
+      // Get CSRF token
       const csrfResponse = await fetch(
         `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/csrf`,
         {
@@ -235,15 +198,21 @@ export function useAuth() {
       if (csrfResponse.ok) {
         const { csrfToken } = await csrfResponse.json();
 
-        await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/signout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            csrfToken,
-            callbackUrl: `${window.location.origin}/login`,
-          }),
-          credentials: 'include',
-        });
+        // Sign out
+        await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/signout`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              csrfToken,
+              callbackUrl: `${window.location.origin}/login`,
+            }),
+            credentials: 'include',
+          }
+        );
       }
 
       setUser(null);
@@ -252,28 +221,14 @@ export function useAuth() {
       toast.dismiss(loadingToast);
       toast.success('Déconnexion réussie');
       nav('/login');
-    } catch {
+    } catch (error) {
+      console.error('Sign out error:', error);
       setUser(null);
       clearSession();
       toast.success('Déconnexion réussie');
       nav('/login');
     }
   };
-
-  // Expose auth error handler for use in other hooks/components
-  const handleAuthError = useCallback(
-    (error: any) => {
-      if (isAuthError(error)) {
-        clearSession();
-        setUser(null);
-        if (!isAuthPage) {
-          toast.error('Session expirée. Veuillez vous reconnecter.');
-          nav('/login');
-        }
-      }
-    },
-    [clearSession, isAuthPage, nav]
-  );
 
   return {
     user,
@@ -283,6 +238,5 @@ export function useAuth() {
     signIn,
     signOut,
     checkSession: () => checkSession(true),
-    handleAuthError,
   };
 }

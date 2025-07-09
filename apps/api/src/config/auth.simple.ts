@@ -7,44 +7,105 @@ const authSecret = process.env.AUTH_SECRET || 'dev-secret-key-that-is-at-least-3
 
 export const authConfig: ExpressAuthConfig = {
   secret: authSecret,
-  session: { strategy: 'jwt' },
+  trustHost: true,
+  basePath: '/api/auth',
+  
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 hours
+    updateAge: 60 * 60, // Update every hour
+  },
+  
+  jwt: {
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  
+  cookies: {
+    sessionToken: {
+      name: 'authjs.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+      },
+    },
+    csrfToken: {
+      name: 'authjs.csrf-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 1000, // 1 hour
+      },
+    },
+  },
+  
   providers: [
     CredentialsProvider({
+      name: 'credentials',
       credentials: {
-        email: { type: 'email' },
-        password: { type: 'password' },
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
-      async authorize({ email, password }) {
-        if (!email || !password) return null;
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
 
-        const user = await prisma.user.findUnique({ where: { email: email as string } });
-        if (!user) return null;
+        try {
+          const user = await prisma.user.findUnique({ 
+            where: { email: credentials.email as string } 
+          });
+          
+          if (!user) {
+            return null;
+          }
 
-        const ok = await bcrypt.compare(password as string, user.hashedPwd);
-        if (!ok) return null;
+          const isValidPassword = await bcrypt.compare(
+            credentials.password as string, 
+            user.hashedPwd
+          );
+          
+          if (!isValidPassword) {
+            return null;
+          }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name || user.email,
-        };
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name || user.email,
+          };
+        } catch (error) {
+          console.error('Auth error:', error);
+          return null;
+        }
       },
     }),
   ],
+  
   callbacks: {
-    session({ session, token }) {
+    async session({ session, token }) {
       if (token?.sub) {
         session.user.id = token.sub;
       }
       return session;
     },
-    jwt({ token, user }) {
+    
+    async jwt({ token, user }) {
       if (user?.id) {
         token.sub = user.id;
       }
       return token;
     },
   },
-  trustHost: true,
-  basePath: '/api/auth',
+  
+  pages: {
+    signIn: '/login',
+    error: '/login',
+  },
+  
+  debug: process.env.NODE_ENV === 'development',
 };

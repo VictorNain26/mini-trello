@@ -7,14 +7,23 @@ import { authConfig } from './config/auth.simple.js';
 import { prisma } from './db.js';
 
 export async function createContext(opts: { req: Request; res: Response; io?: IOServer }) {
+  let session = null;
+  
   try {
-    const session = await getSession(opts.req, authConfig);
-    return { ...opts, prisma, session };
+    session = await getSession(opts.req, authConfig);
   } catch (error) {
-    console.error('Context creation error:', error);
-    // Return context with null session if Auth.js fails
-    return { ...opts, prisma, session: null };
+    console.error('Session retrieval error:', error);
+    // Don't throw, just continue with null session
   }
+  
+  return { 
+    ...opts, 
+    prisma, 
+    session,
+    // Add request info for debugging
+    userAgent: opts.req.headers['user-agent'],
+    ip: opts.req.ip,
+  };
 }
 
 export type Context = inferAsyncReturnType<typeof createContext>;
