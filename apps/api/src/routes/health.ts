@@ -1,9 +1,9 @@
-import { Router } from 'express'
+import { Router, type Request, type Response } from 'express'
 import { prisma } from '../db.js'
 
-const router = Router()
+const router: Router = Router()
 
-router.get('/health', async (req, res) => {
+router.get('/health', async (req: Request, res: Response) => {
   try {
     // Check database connection
     await prisma.$queryRaw`SELECT 1`
