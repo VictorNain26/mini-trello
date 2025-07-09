@@ -1,18 +1,4 @@
-import { createTRPCReact, httpBatchLink } from '@trpc/react-query';
-import type { AppRouter } from '@/types/api';
-
-export const trpc = createTRPCReact<AppRouter>();
-
-export const trpcClient = (trpc as any).createClient({
-  links: [
-    httpBatchLink({
-      url: `${import.meta.env.VITE_API_URL ?? ''}/trpc`,
-      fetch: (url, opts) =>
-        fetch(url, {
-          ...opts,
-          credentials: 'include',
-          signal: opts?.signal ?? null,
-        } as RequestInit),
-    }),
-  ],
-});
+// tRPC client disabled since API uses empty router
+// Using fetch API directly for now
+export const trpc = null;
+export const trpcClient = null;

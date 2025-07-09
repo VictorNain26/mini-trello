@@ -15,10 +15,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(false);
   const { user, signOut } = useAuth();
 
-  useEffect(() => {
-    loadBoards();
-  }, [loadBoards]);
-
   const loadBoards = async () => {
     try {
       const response = await fetch('http://localhost:4000/api/boards', {
@@ -37,6 +33,10 @@ export default function Dashboard() {
       console.error('Load boards error:', error);
     }
   };
+
+  useEffect(() => {
+    loadBoards();
+  }, []);
 
   const createBoard = async (title: string) => {
     if (!title.trim()) return;
