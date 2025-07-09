@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "vite preview",
+    "start": "npm run build && vite preview",
     "lint": "biome check src/",
     "check": "tsc --noEmit",
     "test": "echo 'No frontend tests configured yet.'"
