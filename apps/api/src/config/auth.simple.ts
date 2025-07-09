@@ -3,7 +3,7 @@ import type { ExpressAuthConfig } from '@auth/express';
 import bcrypt from 'bcrypt';
 import { prisma } from '../db.js';
 
-const authSecret = process.env.AUTH_SECRET || 'dev-secret-key-that-is-at-least-32-characters-long';
+const authSecret = process.env['AUTH_SECRET'] || 'dev-secret-key-that-is-at-least-32-characters-long';
 
 export const authConfig: ExpressAuthConfig = {
   secret: authSecret,
