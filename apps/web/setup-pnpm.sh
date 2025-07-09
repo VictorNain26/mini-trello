@@ -3,11 +3,14 @@ set -e
 
 echo "🔧 Setting up pnpm..."
 
-# Enable corepack (built-in with Node.js 16+)
-corepack enable
-
-# Prepare and activate pnpm
-corepack prepare pnpm@latest --activate
+# Check if pnpm is already available
+if command -v pnpm &> /dev/null; then
+    echo "pnpm already installed: $(pnpm --version)"
+else
+    echo "Installing pnpm via npm..."
+    # Install pnpm via npm with specific version
+    npm install -g pnpm@9.15.1 --force
+fi
 
 # Verify pnpm is working
 pnpm --version
