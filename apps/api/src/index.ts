@@ -2,6 +2,8 @@ import "dotenv/config"
 import express, { type Request, type Response } from "express"
 import { createServer } from "node:http"
 import { Server } from "socket.io"
+import { createAdapter } from "@socket.io/redis-adapter"
+import { getRedisClient } from "./config/redis.js"
 import logger from "morgan"
 import path from "node:path"
 import cors from "cors"
@@ -25,6 +27,7 @@ import { boardRoutes } from './routes/boards.js'
 import { columnRoutes } from './routes/columns.js'
 import { cardRoutes } from './routes/cards.js'
 import { memberRoutes } from './routes/members.js'
+import { healthRouter } from './routes/health.js'
 
 // Import controllers for legacy endpoints
 import { validateRequest, SignupSchema } from './utils/validation.js'
@@ -41,6 +44,20 @@ const io = new Server(server, {
     credentials: true
   }
 })
+
+// Configure Redis adapter for Socket.io
+async function setupRedisAdapter() {
+  try {
+    const redisClient = await getRedisClient()
+    const subClient = redisClient.duplicate()
+    await subClient.connect()
+    
+    io.adapter(createAdapter(redisClient, subClient))
+    console.log('🔗 Socket.io Redis adapter configured')
+  } catch (error) {
+    console.warn('⚠️ Redis not available, using default adapter:', error instanceof Error ? error.message : String(error))
+  }
+}
 
 app.set("port", process.env.PORT ?? 4000)
 
@@ -138,6 +155,9 @@ app.use("/trpc", trpcRateLimit, createExpressMiddleware({
   createContext: ({ req, res }) => createContext({ req, res, io }),
 }))
 
+/* ───────────── Health check ────────────── */
+app.use("/", healthRouter)
+
 /* ───────────── Routes demo ────────────── */
 app.get("/", (_req: Request, res: Response) =>
   res.render("index", {
@@ -152,7 +172,23 @@ app.use(errorHandler)
 
 /* ───────────── Start server ─────────── */
 const port = app.get("port")
-server.listen(port, () => {
-  console.log(`🚀 API server running on http://localhost:${port}`)
-  console.log(`🔌 Socket.io ready for connections`)
-})
+
+async function startServer() {
+  try {
+    // Setup Redis adapter for Socket.io
+    await setupRedisAdapter()
+    
+    // Start server
+    server.listen(port, () => {
+      console.log(`🚀 API server running on http://localhost:${port}`)
+      console.log(`🔌 Socket.io ready for connections`)
+      console.log(`🗄️  Database: ${process.env.DATABASE_URL ? 'Connected' : 'Local'}`)
+      console.log(`📦 Redis: ${process.env.REDIS_URL ? 'Connected' : 'Local/Disabled'}`)
+    })
+  } catch (error) {
+    console.error('❌ Failed to start server:', error)
+    process.exit(1)
+  }
+}
+
+startServer()

@@ -9,12 +9,19 @@
     "build": "pnpm -r build",
     "dev": "pnpm -r --parallel dev",
     "test": "echo 'No tests configured yet.'",
-    "check": "pnpm -r check"
-  },
-  "devDependencies": {
-    "typescript": "^5.8.3"
+    "check": "pnpm -r check",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "db": "pnpm --filter api",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,md}\""
   },
   "dependencies": {
     "turbo": "^2.5.4"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "prettier": "^3.6.2"
   }
 }

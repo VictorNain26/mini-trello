@@ -42,6 +42,7 @@ pnpm check
 # Start Docker environment (includes DB)
 pnpm docker:up
 pnpm docker:down
+pnpm docker:logs
 ```
 
 ### Database Commands
