@@ -150,6 +150,12 @@ Check `.env.example` for required environment variables. The Docker setup uses t
 - **ALWAYS** run `pnpm check` after making code changes to verify TypeScript compliance
 - **ALWAYS** run `pnpm format` to auto-fix Biome formatting issues
 - **ALWAYS** run `pnpm lint` to check for remaining linting errors
+- **ALWAYS** run `pnpm turbo build` to verify build passes (same as GitHub Actions)
 - Fix all TypeScript errors before completing any task
 - Fix all Biome linting errors before completing any task
 - Never leave code in a broken state with type errors or linting violations
+
+**Local Development**
+- Run `pnpm turbo build` to replicate the exact same build process as GitHub Actions
+- This will catch the same TypeScript errors you see in CI/CD
+- Use `pnpm check` for faster TypeScript-only validation during development

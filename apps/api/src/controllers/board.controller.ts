@@ -51,10 +51,10 @@ export class BoardController {
       const result = {
         owned: boards
           .filter((board) => board.ownerId === userId)
-          .map((board) => ({ ...board, isOwner: true })),
+          .map((board) => ({ ...board, isOwner: true as const })),
         shared: boards
           .filter((board) => board.ownerId !== userId)
-          .map((board) => ({ ...board, isOwner: false })),
+          .map((board) => ({ ...board, isOwner: false as const })),
       };
 
       // Cache the result
