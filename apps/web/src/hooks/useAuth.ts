@@ -20,9 +20,15 @@ export function useAuth() {
 
   const checkSession = useCallback(async () => {
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
       const response = await fetch('http://localhost:4000/api/auth/session', {
         credentials: 'include',
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const session = await response.json();
@@ -39,7 +45,11 @@ export function useAuth() {
         setUser(null);
       }
     } catch (error) {
-      console.error('Session check failed:', error);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('Session check timed out');
+      } else {
+        console.error('Session check failed:', error);
+      }
       setUser(null);
     } finally {
       setLoading(false);

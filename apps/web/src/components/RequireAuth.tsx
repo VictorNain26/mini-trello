@@ -11,14 +11,14 @@ export default function RequireAuth({ children }: PropsWithChildren) {
     return <>{children}</>;
   }
 
-  if (!initialized) {
-    return null;
-  }
-
-  if (loading) {
+  // Show loading state immediately without waiting for full initialization
+  if (loading || !initialized) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
       </div>
     );
   }
