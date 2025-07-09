@@ -78,13 +78,14 @@ export function useAuth() {
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
 
         const response = await fetch(
           `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/session`,
           {
             credentials: 'include',
             signal: controller.signal,
+            cache: 'no-cache',
           }
         );
 
@@ -130,14 +131,14 @@ export function useAuth() {
         setInitialized(true);
       }
     },
-    [loadStoredSession, saveSession, clearSession]
+    [loadStoredSession, saveSession, clearSession, isAuthPage, nav]
   );
 
   useEffect(() => {
     checkSession();
   }, [checkSession]);
 
-  // Refresh session periodically (every 30 minutes)
+  // Refresh session periodically (every 2 hours)
   useEffect(() => {
     const interval = setInterval(
       () => {
@@ -145,8 +146,8 @@ export function useAuth() {
           checkSession(true);
         }
       },
-      30 * 60 * 1000
-    ); // 30 minutes
+      2 * 60 * 60 * 1000
+    ); // 2 hours
 
     return () => clearInterval(interval);
   }, [user, isAuthPage, checkSession]);

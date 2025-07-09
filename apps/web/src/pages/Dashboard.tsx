@@ -13,11 +13,12 @@ export default function Dashboard() {
   const [showCreateBoard, setShowCreateBoard] = useState(false);
   const [boards, setBoards] = useState<{ owned: any[]; shared: any[] }>({ owned: [], shared: [] });
   const [loading, setLoading] = useState(false);
-  const [boardsLoading, setBoardsLoading] = useState(true);
-  const { user, signOut } = useAuth();
+  const [boardsLoaded, setBoardsLoaded] = useState(false);
+  const { user, signOut, loading: authLoading } = useAuth();
 
   const loadBoards = async () => {
-    setBoardsLoading(true);
+    if (boardsLoaded) return;
+
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards`,
@@ -33,6 +34,7 @@ export default function Dashboard() {
         } else {
           setBoards(data);
         }
+        setBoardsLoaded(true);
       } else {
         console.error('Boards load failed:', response.status, response.statusText);
         if (response.status === 401) {
@@ -42,16 +44,14 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Load boards error:', error);
-    } finally {
-      setBoardsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       loadBoards();
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const createBoard = async (title: string) => {
     if (!title.trim()) return;
@@ -171,7 +171,7 @@ export default function Dashboard() {
         </div>
 
         {/* Create Board Section - Only show if boards exist */}
-        {!boardsLoading && (boards.owned.length > 0 || boards.shared.length > 0) && (
+        {(boards.owned.length > 0 || boards.shared.length > 0) && (
           <div className="mb-8">
             {!showCreateBoard ? (
               <Button
@@ -227,33 +227,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Loading State */}
-        {boardsLoading && (
-          <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Mes tableaux</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <Card className="h-full bg-gray-200">
-                    <CardHeader className="pb-2">
-                      <div className="h-6 bg-gray-300 rounded mb-2"></div>
-                      <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between">
-                        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-                        <div className="h-4 bg-gray-300 rounded w-1/3"></div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* My Boards Section */}
-        {!boardsLoading && boards.owned.length > 0 && (
+        {boards.owned.length > 0 && (
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Mes tableaux</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -304,7 +279,7 @@ export default function Dashboard() {
         )}
 
         {/* Shared Boards Section */}
-        {!boardsLoading && boards.shared.length > 0 && (
+        {boards.shared.length > 0 && (
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Tableaux partagés</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -343,7 +318,7 @@ export default function Dashboard() {
         )}
 
         {/* Empty State */}
-        {!boardsLoading &&
+        {boardsLoaded &&
           boards.owned.length === 0 &&
           boards.shared.length === 0 &&
           !showCreateBoard && (
@@ -367,7 +342,7 @@ export default function Dashboard() {
           )}
 
         {/* Create Board Form for Empty State */}
-        {!boardsLoading &&
+        {boardsLoaded &&
           boards.owned.length === 0 &&
           boards.shared.length === 0 &&
           showCreateBoard && (
