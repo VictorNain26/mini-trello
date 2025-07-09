@@ -44,9 +44,12 @@ export function useBoard(boardId: string | undefined) {
     if (!boardId) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${boardId}`, {
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${boardId}`,
+        {
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -76,9 +79,12 @@ export function useBoard(boardId: string | undefined) {
     if (!boardId) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members`, {
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${boardId}/members`,
+        {
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();

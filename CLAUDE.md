@@ -145,3 +145,11 @@ Check `.env.example` for required environment variables. The Docker setup uses t
 - Use single words when possible (Yes/No/Done/Fixed)
 - Avoid repetitive or redundant information
 - Only provide essential information for the task at hand
+
+**CRITICAL: Code Quality Enforcement**
+- **ALWAYS** run `pnpm check` after making code changes to verify TypeScript compliance
+- **ALWAYS** run `pnpm format` to auto-fix Biome formatting issues
+- **ALWAYS** run `pnpm lint` to check for remaining linting errors
+- Fix all TypeScript errors before completing any task
+- Fix all Biome linting errors before completing any task
+- Never leave code in a broken state with type errors or linting violations

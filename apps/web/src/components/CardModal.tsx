@@ -72,12 +72,15 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
       };
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${card.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${card.id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updates),
+          credentials: 'include',
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();

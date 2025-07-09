@@ -1,21 +1,17 @@
+import { getSession } from '@auth/express';
 import type { Request } from 'express';
+import { authConfig } from '../config/auth.simple.js';
 import { prisma } from '../db.js';
 
 /**
- * Extract user ID from session
+ * Extract user ID from session using Auth.js directly
  */
 export async function getCurrentUserId(req: Request): Promise<string | null> {
   try {
-    const sessionResponse = await fetch(`${process.env.VITE_API_URL}/api/auth/session`, {
-      headers: { cookie: req.headers.cookie || '' },
-    });
-
-    if (sessionResponse.ok) {
-      const sessionData = await sessionResponse.json();
-      return sessionData?.user?.id || null;
-    }
-    return null;
-  } catch {
+    const session = await getSession(req, authConfig);
+    return session?.user?.id || null;
+  } catch (error) {
+    console.error('Session validation error:', error);
     return null;
   }
 }

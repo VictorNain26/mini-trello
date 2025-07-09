@@ -115,9 +115,12 @@ export default function Board() {
 
   const loadBoard = useCallback(async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${id}`, {
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${id}`,
+        {
+          credentials: 'include',
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         // Ensure cards have columnId
@@ -146,9 +149,12 @@ export default function Board() {
     if (!id) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${id}/members`, {
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${id}/members`,
+        {
+          credentials: 'include',
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         // Filtrer les doublons par ID au cas où
@@ -203,12 +209,15 @@ export default function Board() {
     if (!title.trim() || !board || userRole === 'reader') return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${board.id}/columns`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim() }),
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${board.id}/columns`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: title.trim() }),
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         const newColumn = await response.json();
@@ -236,10 +245,13 @@ export default function Board() {
       return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         setBoard((prev) =>
@@ -263,12 +275,15 @@ export default function Board() {
     if (!title.trim() || userRole === 'reader') return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}/cards`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim() }),
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}/cards`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: title.trim() }),
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         const newCard = await response.json();
@@ -299,10 +314,13 @@ export default function Board() {
     if (!board) return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${board.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${board.id}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         toast.success('Tableau supprimé !');
@@ -320,7 +338,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/boards/${board.id}/members/${userId}`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${board.id}/members/${userId}`,
         {
           method: 'DELETE',
           credentials: 'include',
@@ -343,10 +361,13 @@ export default function Board() {
       return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${cardId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${cardId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         setBoard((prev) =>
@@ -438,12 +459,15 @@ export default function Board() {
 
           // Update column order on server
           try {
-            await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${activeColumnId}/move`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ order: overIndex }),
-              credentials: 'include',
-            });
+            await fetch(
+              `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${activeColumnId}/move`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order: overIndex }),
+                credentials: 'include',
+              }
+            );
           } catch {
             toast.error('Erreur lors du déplacement');
             loadBoard();
@@ -489,15 +513,18 @@ export default function Board() {
         // Update order on server
         try {
           const newOrder = overIndex;
-          await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${activeId}/move`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              columnId: activeColumn.id,
-              order: newOrder,
-            }),
-            credentials: 'include',
-          });
+          await fetch(
+            `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${activeId}/move`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                columnId: activeColumn.id,
+                order: newOrder,
+              }),
+              credentials: 'include',
+            }
+          );
         } catch {
           toast.error('Erreur lors du déplacement');
           loadBoard();
@@ -539,15 +566,18 @@ export default function Board() {
 
       // Appel API en arrière-plan
       try {
-        await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${activeId}/move`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            columnId: overColumn.id,
-            order: overIndex,
-          }),
-          credentials: 'include',
-        });
+        await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${activeId}/move`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              columnId: overColumn.id,
+              order: overIndex,
+            }),
+            credentials: 'include',
+          }
+        );
       } catch {
         toast.error('Erreur lors du déplacement');
         loadBoard(); // Recharger en cas d'erreur pour récupérer l'état correct
@@ -581,12 +611,15 @@ export default function Board() {
     if (!newTitle.trim() || userRole === 'reader') return;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newTitle.trim() }),
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: newTitle.trim() }),
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         setBoard((prev) =>
@@ -634,10 +667,13 @@ export default function Board() {
 
   const handleCardDelete = async (cardId: string) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${cardId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${cardId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         setBoard((prev) =>

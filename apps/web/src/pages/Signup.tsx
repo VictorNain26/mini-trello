@@ -60,11 +60,14 @@ export default function Signup() {
 
     try {
       // Create user account via direct API call (simpler)
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/signup`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, name }),
+        }
+      );
 
       setSubmitting(false);
       toast.dismiss(loadingToast);

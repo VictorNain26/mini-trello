@@ -13,12 +13,15 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
       if (!title.trim() || userRole === 'reader') return null;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${boardId}/columns`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: title.trim() }),
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${boardId}/columns`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: title.trim() }),
+            credentials: 'include',
+          }
+        );
 
         if (response.ok) {
           const newColumn = await response.json();
@@ -43,12 +46,15 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
       if (!title.trim() || userRole === 'reader') return false;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: title.trim() }),
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: title.trim() }),
+            credentials: 'include',
+          }
+        );
 
         if (response.ok) {
           toast.success('Colonne mise à jour !');
@@ -72,10 +78,13 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
       if (userRole === 'reader') return false;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}`,
+          {
+            method: 'DELETE',
+            credentials: 'include',
+          }
+        );
 
         if (response.ok) {
           toast.success('Colonne supprimée !');
@@ -99,12 +108,15 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
       if (!title.trim() || userRole === 'reader') return null;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}/cards`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: title.trim() }),
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}/cards`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title: title.trim() }),
+            credentials: 'include',
+          }
+        );
 
         if (response.ok) {
           const newCard = await response.json();
@@ -129,12 +141,15 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
       if (userRole === 'reader') return false;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${cardId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updates),
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${cardId}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updates),
+            credentials: 'include',
+          }
+        );
 
         if (response.ok) {
           onUpdate();
@@ -157,10 +172,13 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
       if (userRole === 'reader') return false;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${cardId}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${cardId}`,
+          {
+            method: 'DELETE',
+            credentials: 'include',
+          }
+        );
 
         if (response.ok) {
           toast.success('Carte supprimée !');
@@ -184,12 +202,15 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
       if (userRole === 'reader') return false;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${cardId}/move`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ columnId, order }),
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${cardId}/move`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ columnId, order }),
+            credentials: 'include',
+          }
+        );
 
         return response.ok;
       } catch {
@@ -204,12 +225,15 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
       if (userRole === 'reader') return false;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}/move`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order }),
-          credentials: 'include',
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}/move`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order }),
+            credentials: 'include',
+          }
+        );
 
         return response.ok;
       } catch {

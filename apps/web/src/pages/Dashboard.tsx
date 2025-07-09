@@ -1,4 +1,4 @@
-import { Columns3, Plus, Users } from 'lucide-react';
+import { Columns3, Plus, Trash2, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -17,9 +17,12 @@ export default function Dashboard() {
 
   const loadBoards = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards`, {
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards`,
+        {
+          credentials: 'include',
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         // Handle both old format (array) and new format (object)
@@ -41,14 +44,26 @@ export default function Dashboard() {
   const createBoard = async (title: string) => {
     if (!title.trim()) return;
 
+    // Check for duplicate board names
+    const existingBoard = boards.owned.find(
+      (board) => board.title.toLowerCase() === title.trim().toLowerCase()
+    );
+    if (existingBoard) {
+      toast.error('Un tableau avec ce nom existe déjà');
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim() }),
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: title.trim() }),
+          credentials: 'include',
+        }
+      );
 
       if (response.ok) {
         const newBoard = await response.json();
@@ -60,7 +75,8 @@ export default function Dashboard() {
         setShowCreateBoard(false);
         toast.success('Tableau créé !');
       } else {
-        toast.error('Erreur lors de la création');
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Erreur lors de la création');
       }
     } catch {
       toast.error('Erreur réseau');
@@ -72,6 +88,39 @@ export default function Dashboard() {
   const handleCreateBoard = async (e: React.FormEvent) => {
     e.preventDefault();
     await createBoard(newBoardTitle);
+  };
+
+  const deleteBoard = async (boardId: string, boardTitle: string) => {
+    if (
+      !confirm(
+        `Êtes-vous sûr de vouloir supprimer le tableau "${boardTitle}" ? Cette action est irréversible.`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${boardId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
+
+      if (response.ok) {
+        setBoards((prev) => ({
+          ...prev,
+          owned: prev.owned.filter((board) => board.id !== boardId),
+        }));
+        toast.success('Tableau supprimé !');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Erreur lors de la suppression');
+      }
+    } catch {
+      toast.error('Erreur réseau');
+    }
   };
 
   return (
@@ -172,33 +221,46 @@ export default function Dashboard() {
             <h3 className="text-xl font-bold text-gray-900 mb-4">Mes tableaux</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {boards.owned.map((board) => (
-                <Link key={board.id} to={`/board/${board.id}`} className="block group">
-                  <Card className="h-full bg-white hover:shadow-lg transition-shadow duration-200 group-hover:scale-105 transform transition-transform">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
-                        {board.title}
-                      </CardTitle>
-                      <CardDescription className="text-sm text-gray-500">
-                        Créé le {new Date(board.createdAt).toLocaleDateString('fr-FR')}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center justify-between text-sm text-gray-600">
-                        <div className="flex items-center space-x-1">
-                          <Users className="h-4 w-4" />
-                          <span>Propriétaire</span>
+                <div key={board.id} className="relative group">
+                  <Link to={`/board/${board.id}`} className="block">
+                    <Card className="h-full bg-white hover:shadow-lg transition-shadow duration-200 group-hover:scale-105 transform transition-transform">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-blue-600">
+                          {board.title}
+                        </CardTitle>
+                        <CardDescription className="text-sm text-gray-500">
+                          Créé le {new Date(board.createdAt).toLocaleDateString('fr-FR')}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center justify-between text-sm text-gray-600">
+                          <div className="flex items-center space-x-1">
+                            <Users className="h-4 w-4" />
+                            <span>Propriétaire</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <Columns3 className="h-4 w-4" />
+                            <span>
+                              {board._count?.columns || 0} colonne
+                              {(board._count?.columns || 0) !== 1 ? 's' : ''}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <Columns3 className="h-4 w-4" />
-                          <span>
-                            {board._count?.columns || 0} colonne
-                            {(board._count?.columns || 0) !== 1 ? 's' : ''}
-                          </span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      deleteBoard(board.id, board.title);
+                    }}
+                    className="absolute top-2 right-2 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               ))}
             </div>
           </div>
