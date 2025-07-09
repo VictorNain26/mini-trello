@@ -6,9 +6,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss({
-      config: './tailwind.config.ts',
-    }),
+    tailwindcss(),
   ],
   resolve: {
     alias: {
