@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { getEnv } from '../utils/env.js';
 
 // Database connection health check
 export async function checkDatabaseConnection() {
@@ -21,10 +22,10 @@ export async function checkDatabaseConnection() {
 
 // Database configuration for different environments
 export const getDatabaseConfig = () => {
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction = getEnv('NODE_ENV') === 'production';
 
   return {
-    url: process.env.DATABASE_URL,
+    url: getEnv('DATABASE_URL'),
     log: isProduction ? ['error'] : ['query', 'info', 'warn', 'error'],
     errorFormat: isProduction ? 'minimal' : 'pretty',
   };

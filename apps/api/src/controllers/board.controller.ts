@@ -107,6 +107,11 @@ export class BoardController {
   static async getBoardById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Board ID is required' });
+        return;
+      }
+
       const userId = await getAuthenticatedUser(req);
 
       if (!userId) {
@@ -170,6 +175,11 @@ export class BoardController {
   static async updateBoard(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Board ID is required' });
+        return;
+      }
+
       const data = validateRequest(UpdateBoardSchema, req.body);
       const userId = await requireAuth(req);
 
@@ -208,6 +218,11 @@ export class BoardController {
   static async deleteBoard(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Board ID is required' });
+        return;
+      }
+
       const userId = await requireAuth(req);
 
       // Only owner can delete board

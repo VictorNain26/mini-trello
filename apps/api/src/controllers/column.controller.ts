@@ -16,6 +16,10 @@ export class ColumnController {
   static async createColumn(req: Request, res: Response, next: NextFunction) {
     try {
       const { boardId } = req.params;
+      if (!boardId) {
+        res.status(400).json({ error: 'Board ID is required' });
+        return;
+      }
       const data = validateRequest(CreateColumnSchema, req.body);
       const userId = await requireAuth(req);
 
@@ -61,6 +65,10 @@ export class ColumnController {
   static async updateColumn(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Column ID is required' });
+        return;
+      }
       const data = validateRequest(UpdateColumnSchema, req.body);
       const userId = await requireAuth(req);
 
@@ -109,6 +117,10 @@ export class ColumnController {
   static async deleteColumn(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Column ID is required' });
+        return;
+      }
       const userId = await requireAuth(req);
 
       // Get column with board info to check permissions
@@ -150,6 +162,10 @@ export class ColumnController {
   static async moveColumn(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Column ID is required' });
+        return;
+      }
       const data = validateRequest(MoveColumnSchema, req.body);
       const userId = await requireAuth(req);
 

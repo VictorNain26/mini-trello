@@ -23,6 +23,7 @@ import { cardRoutes } from './routes/cards.js';
 import { columnRoutes } from './routes/columns.js';
 import { healthRouter } from './routes/health.js';
 import { memberRoutes } from './routes/members.js';
+import { getEnv, getEnvWithFallback } from './utils/env.js';
 // Import controllers for legacy endpoints
 import { SignupSchema, validateRequest } from './utils/validation.js';
 
@@ -32,7 +33,7 @@ export const app: express.Application = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173',
+    origin: getEnvWithFallback('CLIENT_ORIGIN', 'http://localhost:5173'),
     credentials: true,
   },
 });
@@ -54,7 +55,7 @@ async function setupRedisAdapter() {
   }
 }
 
-app.set('port', process.env.PORT ?? 4000);
+app.set('port', getEnvWithFallback('PORT', '4000'));
 
 /* ───────────── Views (Pug) ───────────── */
 app.engine('pug', (pug as any).__express);
@@ -65,7 +66,7 @@ app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173',
+    origin: getEnvWithFallback('CLIENT_ORIGIN', 'http://localhost:5173'),
     credentials: true,
   })
 );
@@ -116,7 +117,7 @@ app.use('/api', memberRoutes);
 /* ───────────── Rate-limit (auth only) ─── */
 const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 50 : 200,
+  max: getEnv('NODE_ENV') === 'production' ? 50 : 200,
   message: {
     error: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.',
   },
@@ -138,13 +139,13 @@ app.use('/api/auth', ExpressAuth(authConfig) as any);
 /* ───────────── tRPC ────────────── */
 const trpcRateLimit = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: process.env.NODE_ENV === 'production' ? 60 : 300,
+  max: getEnv('NODE_ENV') === 'production' ? 60 : 300,
   message: {
     error: 'Trop de requêtes. Ralentissez un peu.',
   },
   standardHeaders: true,
   legacyHeaders: false,
-  skipSuccessfulRequests: process.env.NODE_ENV === 'production',
+  skipSuccessfulRequests: getEnv('NODE_ENV') === 'production',
 });
 
 app.use(
@@ -163,7 +164,8 @@ app.use('/', healthRouter);
 app.get('/', (_req: Request, res: Response) =>
   res.render('index', {
     title: 'Mini Trello API',
-    user: res.locals.session?.user || null,
+    // biome-ignore lint/complexity/useLiteralKeys: TypeScript strict mode requires bracket notation for index signatures
+    user: res.locals['session']?.user || null,
   })
 );
 
@@ -183,8 +185,8 @@ async function startServer() {
     server.listen(port, () => {
       console.log(`🚀 API server running on http://localhost:${port}`);
       console.log(`🔌 Socket.io ready for connections`);
-      console.log(`🗄️  Database: ${process.env.DATABASE_URL ? 'Connected' : 'Local'}`);
-      console.log(`📦 Redis: ${process.env.REDIS_URL ? 'Connected' : 'Local/Disabled'}`);
+      console.log(`🗄️  Database: ${getEnv('DATABASE_URL') ? 'Connected' : 'Local'}`);
+      console.log(`📦 Redis: ${getEnv('REDIS_URL') ? 'Connected' : 'Local/Disabled'}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);

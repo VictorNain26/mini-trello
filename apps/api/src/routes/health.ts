@@ -1,6 +1,7 @@
 import { type Request, type Response, Router } from 'express';
 import { getRedisClient } from '../config/redis.js';
 import { prisma } from '../db.js';
+import { getEnvWithFallback } from '../utils/env.js';
 
 const router: Router = Router();
 
@@ -9,7 +10,7 @@ router.get('/health', async (req: Request, res: Response) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development',
+    environment: getEnvWithFallback('NODE_ENV', 'development'),
     services: {
       database: 'unknown',
       redis: 'unknown',

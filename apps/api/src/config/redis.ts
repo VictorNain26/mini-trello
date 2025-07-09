@@ -1,11 +1,12 @@
 import { createClient, type RedisClientType } from 'redis';
+import { getEnvWithFallback } from '../utils/env.js';
 
 let redisClient: RedisClientType | null = null;
 
 export async function getRedisClient(): Promise<RedisClientType> {
   if (!redisClient) {
     redisClient = createClient({
-      url: process.env.REDIS_URL || 'redis://localhost:6379',
+      url: getEnvWithFallback('REDIS_URL', 'redis://localhost:6379'),
       socket: {
         reconnectStrategy: (retries) => {
           if (retries > 5) return false; // Stop retrying after 5 attempts

@@ -16,6 +16,10 @@ export class CardController {
   static async createCard(req: Request, res: Response, next: NextFunction) {
     try {
       const { columnId } = req.params;
+      if (!columnId) {
+        res.status(400).json({ error: 'Column ID is required' });
+        return;
+      }
       const data = validateRequest(CreateCardSchema, req.body);
       const userId = await requireAuth(req);
 
@@ -71,6 +75,10 @@ export class CardController {
   static async updateCard(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Card ID is required' });
+        return;
+      }
       const data = validateRequest(UpdateCardSchema, req.body);
       const userId = await requireAuth(req);
 
@@ -134,6 +142,10 @@ export class CardController {
   static async deleteCard(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Card ID is required' });
+        return;
+      }
       const userId = await requireAuth(req);
 
       // Get card with board info to check permissions
@@ -177,6 +189,10 @@ export class CardController {
   static async moveCard(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
+      if (!id) {
+        res.status(400).json({ error: 'Card ID is required' });
+        return;
+      }
       const data = validateRequest(MoveCardSchema, req.body);
       const userId = await requireAuth(req);
 

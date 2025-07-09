@@ -1,12 +1,16 @@
 import { Redis } from 'ioredis';
+import { getEnv, getEnvWithFallback } from '../utils/env.js';
 
-const redis = new Redis({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
+const redisPassword = getEnv('REDIS_PASSWORD');
+const redisConfig = {
+  host: getEnvWithFallback('REDIS_HOST', 'localhost'),
+  port: parseInt(getEnvWithFallback('REDIS_PORT', '6379')),
   connectTimeout: 5000,
   lazyConnect: true,
-});
+  ...(redisPassword && { password: redisPassword }),
+};
+
+const redis = new Redis(redisConfig);
 
 // Error handling
 redis.on('error', (error: Error) => {

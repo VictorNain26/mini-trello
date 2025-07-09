@@ -2,8 +2,12 @@ import CredentialsProvider from '@auth/core/providers/credentials';
 import type { ExpressAuthConfig } from '@auth/express';
 import bcrypt from 'bcrypt';
 import { prisma } from '../db.js';
+import { getEnv, getEnvWithFallback } from '../utils/env.js';
 
-const authSecret = process.env['AUTH_SECRET'] || 'dev-secret-key-that-is-at-least-32-characters-long';
+const authSecret = getEnvWithFallback(
+  'AUTH_SECRET',
+  'dev-secret-key-that-is-at-least-32-characters-long'
+);
 
 export const authConfig: ExpressAuthConfig = {
   secret: authSecret,
@@ -27,7 +31,7 @@ export const authConfig: ExpressAuthConfig = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: getEnv('NODE_ENV') === 'production',
         maxAge: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
       },
     },
@@ -37,7 +41,7 @@ export const authConfig: ExpressAuthConfig = {
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: getEnv('NODE_ENV') === 'production',
         maxAge: 60 * 60 * 1000, // 1 hour
       },
     },
@@ -107,5 +111,5 @@ export const authConfig: ExpressAuthConfig = {
     error: '/login',
   },
 
-  debug: process.env.NODE_ENV === 'development',
+  debug: getEnv('NODE_ENV') === 'development',
 };

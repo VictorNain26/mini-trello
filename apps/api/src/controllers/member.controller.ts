@@ -11,6 +11,10 @@ export class MemberController {
   static async inviteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { boardId } = req.params;
+      if (!boardId) {
+        res.status(400).json({ error: 'Board ID is required' });
+        return;
+      }
       const data = validateRequest(InviteUserSchema, req.body);
       const userId = await requireAuth(req);
 
@@ -67,7 +71,7 @@ export class MemberController {
         data: {
           boardId,
           userId: invitedUser.id,
-          role: data.role,
+          role: data.role || 'reader',
         },
       });
 
@@ -97,6 +101,10 @@ export class MemberController {
   static async getBoardMembers(req: Request, res: Response, next: NextFunction) {
     try {
       const { boardId } = req.params;
+      if (!boardId) {
+        res.status(400).json({ error: 'Board ID is required' });
+        return;
+      }
       const userId = await requireAuth(req);
 
       // Check if user has access to this board
@@ -162,6 +170,10 @@ export class MemberController {
   static async removeMember(req: Request, res: Response, next: NextFunction) {
     try {
       const { boardId, userId: targetUserId } = req.params;
+      if (!boardId || !targetUserId) {
+        res.status(400).json({ error: 'Board ID and User ID are required' });
+        return;
+      }
       const userId = await requireAuth(req);
 
       // Check if current user is the owner of the board
