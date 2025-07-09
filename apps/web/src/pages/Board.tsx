@@ -23,7 +23,7 @@ import {
   Users,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { CardModal } from '@/components/CardModal';
 import { DraggableColumn } from '@/components/DraggableColumn';
@@ -85,6 +85,7 @@ export default function Board() {
   const [userRole, setUserRole] = useState<'owner' | 'editor' | 'reader' | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { user, signOut } = useAuth();
+  const nav = useNavigate();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -136,14 +137,21 @@ export default function Board() {
         };
         setBoard(processedData);
       } else {
-        toast.error('Tableau non trouvé');
+        console.error('Board load failed:', response.status, response.statusText);
+        if (response.status === 401) {
+          toast.error('Session expirée. Veuillez vous reconnecter.');
+          nav('/login');
+        } else {
+          toast.error('Tableau non trouvé');
+        }
       }
-    } catch {
+    } catch (error) {
+      console.error('Board load error:', error);
       toast.error('Erreur de chargement');
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, nav]);
 
   const loadMembers = useCallback(async () => {
     if (!id) return;
@@ -167,11 +175,17 @@ export default function Board() {
         // Déterminer le rôle de l'utilisateur actuel
         const currentUserMember = data.find((member: BoardMember) => member.email === user?.email);
         setUserRole(currentUserMember?.role || null);
+      } else {
+        console.error('Members load failed:', response.status, response.statusText);
+        if (response.status === 401) {
+          toast.error('Session expirée. Veuillez vous reconnecter.');
+          nav('/login');
+        }
       }
-    } catch {
-      console.error('Erreur chargement membres');
+    } catch (error) {
+      console.error('Members load error:', error);
     }
-  }, [id, user?.email]);
+  }, [id, user?.email, nav]);
 
   const updateScrollIndicators = useCallback(() => {
     const container = scrollContainerRef.current;

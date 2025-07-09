@@ -13,9 +13,11 @@ export default function Dashboard() {
   const [showCreateBoard, setShowCreateBoard] = useState(false);
   const [boards, setBoards] = useState<{ owned: any[]; shared: any[] }>({ owned: [], shared: [] });
   const [loading, setLoading] = useState(false);
+  const [boardsLoading, setBoardsLoading] = useState(true);
   const { user, signOut } = useAuth();
 
   const loadBoards = async () => {
+    setBoardsLoading(true);
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards`,
@@ -31,15 +33,25 @@ export default function Dashboard() {
         } else {
           setBoards(data);
         }
+      } else {
+        console.error('Boards load failed:', response.status, response.statusText);
+        if (response.status === 401) {
+          toast.error('Session expirée. Veuillez vous reconnecter.');
+          signOut();
+        }
       }
     } catch (error) {
       console.error('Load boards error:', error);
+    } finally {
+      setBoardsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadBoards();
-  }, []);
+    if (user) {
+      loadBoards();
+    }
+  }, [user]);
 
   const createBoard = async (title: string) => {
     if (!title.trim()) return;
@@ -159,7 +171,7 @@ export default function Dashboard() {
         </div>
 
         {/* Create Board Section - Only show if boards exist */}
-        {(boards.owned.length > 0 || boards.shared.length > 0) && (
+        {!boardsLoading && (boards.owned.length > 0 || boards.shared.length > 0) && (
           <div className="mb-8">
             {!showCreateBoard ? (
               <Button
@@ -215,8 +227,33 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Loading State */}
+        {boardsLoading && (
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Mes tableaux</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <Card className="h-full bg-gray-200">
+                    <CardHeader className="pb-2">
+                      <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center justify-between">
+                        <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                        <div className="h-4 bg-gray-300 rounded w-1/3"></div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* My Boards Section */}
-        {boards.owned.length > 0 && (
+        {!boardsLoading && boards.owned.length > 0 && (
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Mes tableaux</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -267,7 +304,7 @@ export default function Dashboard() {
         )}
 
         {/* Shared Boards Section */}
-        {boards.shared.length > 0 && (
+        {!boardsLoading && boards.shared.length > 0 && (
           <div className="mb-8">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Tableaux partagés</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -306,70 +343,78 @@ export default function Dashboard() {
         )}
 
         {/* Empty State */}
-        {boards.owned.length === 0 && boards.shared.length === 0 && !showCreateBoard && (
-          <div className="text-center py-12">
-            <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <Plus className="h-8 w-8 text-gray-400" />
+        {!boardsLoading &&
+          boards.owned.length === 0 &&
+          boards.shared.length === 0 &&
+          !showCreateBoard && (
+            <div className="text-center py-12">
+              <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Plus className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Aucun tableau pour le moment
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Créez votre premier tableau pour commencer à organiser vos tâches.
+              </p>
+              <Button
+                onClick={() => setShowCreateBoard(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Créer mon premier tableau
+              </Button>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun tableau pour le moment</h3>
-            <p className="text-gray-600 mb-4">
-              Créez votre premier tableau pour commencer à organiser vos tâches.
-            </p>
-            <Button
-              onClick={() => setShowCreateBoard(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Créer mon premier tableau
-            </Button>
-          </div>
-        )}
+          )}
 
         {/* Create Board Form for Empty State */}
-        {boards.owned.length === 0 && boards.shared.length === 0 && showCreateBoard && (
-          <div className="flex justify-center">
-            <Card className="max-w-md w-full">
-              <CardHeader>
-                <CardTitle className="text-lg">Votre premier tableau</CardTitle>
-                <CardDescription>
-                  Créez votre premier tableau pour organiser vos tâches.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleCreateBoard} className="space-y-4">
-                  <div>
-                    <Label htmlFor="boardTitle">Titre du tableau</Label>
-                    <Input
-                      id="boardTitle"
-                      value={newBoardTitle}
-                      onChange={(e) => setNewBoardTitle(e.target.value)}
-                      placeholder="Ex: Projet Web, Marketing..."
-                      required
-                    />
-                  </div>
-                  <div className="flex space-x-2">
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      {loading ? 'Création...' : 'Créer'}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setShowCreateBoard(false);
-                        setNewBoardTitle('');
-                      }}
-                    >
-                      Annuler
-                    </Button>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {!boardsLoading &&
+          boards.owned.length === 0 &&
+          boards.shared.length === 0 &&
+          showCreateBoard && (
+            <div className="flex justify-center">
+              <Card className="max-w-md w-full">
+                <CardHeader>
+                  <CardTitle className="text-lg">Votre premier tableau</CardTitle>
+                  <CardDescription>
+                    Créez votre premier tableau pour organiser vos tâches.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleCreateBoard} className="space-y-4">
+                    <div>
+                      <Label htmlFor="boardTitle">Titre du tableau</Label>
+                      <Input
+                        id="boardTitle"
+                        value={newBoardTitle}
+                        onChange={(e) => setNewBoardTitle(e.target.value)}
+                        placeholder="Ex: Projet Web, Marketing..."
+                        required
+                      />
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        {loading ? 'Création...' : 'Créer'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setShowCreateBoard(false);
+                          setNewBoardTitle('');
+                        }}
+                      >
+                        Annuler
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
+          )}
       </main>
     </div>
   );
