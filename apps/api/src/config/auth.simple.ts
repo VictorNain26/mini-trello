@@ -9,17 +9,17 @@ export const authConfig: ExpressAuthConfig = {
   secret: authSecret,
   trustHost: true,
   basePath: '/api/auth',
-  
+
   session: {
     strategy: 'jwt',
     maxAge: 24 * 60 * 60, // 24 hours
     updateAge: 60 * 60, // Update every hour
   },
-  
+
   jwt: {
     maxAge: 24 * 60 * 60, // 24 hours
   },
-  
+
   cookies: {
     sessionToken: {
       name: 'authjs.session-token',
@@ -42,7 +42,7 @@ export const authConfig: ExpressAuthConfig = {
       },
     },
   },
-  
+
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -56,19 +56,19 @@ export const authConfig: ExpressAuthConfig = {
         }
 
         try {
-          const user = await prisma.user.findUnique({ 
-            where: { email: credentials.email as string } 
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string },
           });
-          
+
           if (!user) {
             return null;
           }
 
           const isValidPassword = await bcrypt.compare(
-            credentials.password as string, 
+            credentials.password as string,
             user.hashedPwd
           );
-          
+
           if (!isValidPassword) {
             return null;
           }
@@ -85,7 +85,7 @@ export const authConfig: ExpressAuthConfig = {
       },
     }),
   ],
-  
+
   callbacks: {
     async session({ session, token }) {
       if (token?.sub) {
@@ -93,7 +93,7 @@ export const authConfig: ExpressAuthConfig = {
       }
       return session;
     },
-    
+
     async jwt({ token, user }) {
       if (user?.id) {
         token.sub = user.id;
@@ -101,11 +101,11 @@ export const authConfig: ExpressAuthConfig = {
       return token;
     },
   },
-  
+
   pages: {
     signIn: '/login',
     error: '/login',
   },
-  
+
   debug: process.env.NODE_ENV === 'development',
 };

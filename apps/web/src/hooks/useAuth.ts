@@ -102,7 +102,7 @@ export function useAuth() {
         } else {
           setUser(null);
           clearSession();
-          
+
           if (response.status === 401 && !isAuthPage) {
             toast.error('Session expirée. Veuillez vous reconnecter.');
             nav('/login');
@@ -168,14 +168,28 @@ export function useAuth() {
 
       toast.dismiss(loadingToast);
 
-      if (user) {
-        toast.success('Connexion réussie !');
-        nav('/dashboard');
-        return { success: true };
-      } else {
-        toast.error('Identifiants incorrects');
-        return { success: false };
+      // Wait a moment for state to update, then check session response directly
+      const sessionResponse = await fetch(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/session`,
+        {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (sessionResponse.ok) {
+        const session = await sessionResponse.json();
+        if (session?.user) {
+          toast.success('Connexion réussie !');
+          nav('/dashboard');
+          return { success: true };
+        }
       }
+
+      toast.error('Identifiants incorrects');
+      return { success: false };
     } catch (error) {
       console.error('Sign in error:', error);
       toast.error('Erreur de connexion');
@@ -199,20 +213,17 @@ export function useAuth() {
         const { csrfToken } = await csrfResponse.json();
 
         // Sign out
-        await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/signout`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-              csrfToken,
-              callbackUrl: `${window.location.origin}/login`,
-            }),
-            credentials: 'include',
-          }
-        );
+        await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/signout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            csrfToken,
+            callbackUrl: `${window.location.origin}/login`,
+          }),
+          credentials: 'include',
+        });
       }
 
       setUser(null);

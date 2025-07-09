@@ -8,17 +8,17 @@ import { prisma } from './db.js';
 
 export async function createContext(opts: { req: Request; res: Response; io?: IOServer }) {
   let session = null;
-  
+
   try {
     session = await getSession(opts.req, authConfig);
   } catch (error) {
     console.error('Session retrieval error:', error);
     // Don't throw, just continue with null session
   }
-  
-  return { 
-    ...opts, 
-    prisma, 
+
+  return {
+    ...opts,
+    prisma,
     session,
     // Add request info for debugging
     userAgent: opts.req.headers['user-agent'],
