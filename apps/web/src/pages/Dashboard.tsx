@@ -17,7 +17,7 @@ export default function Dashboard() {
 
   const loadBoards = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/boards', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards`, {
         credentials: 'include',
       });
       if (response.ok) {
@@ -43,7 +43,7 @@ export default function Dashboard() {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/boards', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/api/boards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title.trim() }),

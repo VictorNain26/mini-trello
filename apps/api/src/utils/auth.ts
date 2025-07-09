@@ -6,7 +6,7 @@ import { prisma } from '../db.js';
  */
 export async function getCurrentUserId(req: Request): Promise<string | null> {
   try {
-    const sessionResponse = await fetch('http://localhost:4000/api/auth/session', {
+    const sessionResponse = await fetch(`${process.env.VITE_API_URL}/api/auth/session`, {
       headers: { cookie: req.headers.cookie || '' },
     });
 

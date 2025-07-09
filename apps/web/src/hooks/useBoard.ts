@@ -44,7 +44,7 @@ export function useBoard(boardId: string | undefined) {
     if (!boardId) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/boards/${boardId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${boardId}`, {
         credentials: 'include',
       });
 
@@ -76,7 +76,7 @@ export function useBoard(boardId: string | undefined) {
     if (!boardId) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/boards/${boardId}/members`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${boardId}/members`, {
         credentials: 'include',
       });
 

@@ -16,7 +16,7 @@
 
 ### 📋 Gestion Kanban
 - **Tableaux dynamiques** avec colonnes personnalisables
-- **Drag & Drop** fluide pour cartes et colonnes  
+- **Drag & Drop** fluide pour cartes et colonnes
 - **Cartes détaillées** avec description, labels et dates d'échéance
 - **Interface responsive** optimisée mobile et desktop
 
@@ -35,7 +35,7 @@
 
 ### Prérequis
 - Node.js >= 20
-- pnpm >= 8  
+- pnpm >= 8
 - Docker (optionnel)
 
 ### Démarrage
@@ -51,7 +51,7 @@ cp .env.example .env
 
 # 3. Base de données
 pnpm docker:up       # Lance PostgreSQL
-pnpm db migrate dev  # Applique migrations  
+pnpm db migrate dev  # Applique migrations
 pnpm db seed         # Données de test
 
 # 4. Lancement
@@ -71,7 +71,7 @@ pnpm build            # Build production
 pnpm check            # Vérifications TypeScript
 pnpm lint             # ESLint + Prettier
 
-# Base de données  
+# Base de données
 pnpm db generate      # Client Prisma
 pnpm db studio        # Interface admin
 pnpm db seed          # Données de test
@@ -85,7 +85,7 @@ pnpm docker:down      # Arrêt services
 
 ### Stack Technique
 - **Frontend**: React 19, TypeScript, TailwindCSS v4, @dnd-kit
-- **Backend**: Node.js, Express, tRPC, Prisma ORM  
+- **Backend**: Node.js, Express, tRPC, Prisma ORM
 - **Base de données**: PostgreSQL avec Redis (sessions)
 - **Déploiement**: Railway avec auto-deployment GitHub
 
@@ -106,7 +106,7 @@ mini-trello/
 │   └── web/               # Frontend React
 │       ├── src/
 │       │   ├── components/    # Composants UI
-│       │   ├── pages/         # Pages applicatives  
+│       │   ├── pages/         # Pages applicatives
 │       │   ├── hooks/         # Hooks personnalisés
 │       │   └── lib/           # Utilitaires
 │       └── railway.json
@@ -121,7 +121,7 @@ mini-trello/
 ```typescript
 GET    /api/boards                    // Liste des tableaux
 POST   /api/boards                    // Créer tableau
-GET    /api/boards/:id                // Détails tableau  
+GET    /api/boards/:id                // Détails tableau
 PUT    /api/boards/:id                // Modifier tableau
 DELETE /api/boards/:id                // Supprimer tableau (owner only)
 
@@ -138,7 +138,7 @@ DELETE /api/columns/:id               // Supprimer colonne
 PUT    /api/columns/:id/move          // Déplacer colonne
 
 POST   /api/columns/:id/cards         // Créer carte
-PUT    /api/cards/:id                 // Modifier carte  
+PUT    /api/cards/:id                 // Modifier carte
 DELETE /api/cards/:id                 // Supprimer carte
 PUT    /api/cards/:id/move            // Déplacer carte
 ```
@@ -158,7 +158,7 @@ DATABASE_URL=postgresql://...
 AUTH_SECRET=your-32-character-secret
 CLIENT_ORIGIN=https://your-web-domain.railway.app
 
-# Développement  
+# Développement
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/mini_trello
 AUTH_SECRET=your-dev-secret
 CLIENT_ORIGIN=http://localhost:5173
@@ -168,7 +168,7 @@ CLIENT_ORIGIN=http://localhost:5173
 
 ### Standards
 - ✅ TypeScript strict (zero `any`)
-- ✅ ESLint zero warnings  
+- ✅ ESLint zero warnings
 - ✅ Prettier formatage automatique
 - ✅ Validation Zod serveur
 - ✅ Architecture modulaire
@@ -188,7 +188,7 @@ pnpm format   # Prettier
 - ✅ Déploiement Railway
 - ✅ Sécurité renforcée
 
-### v2.0 (Prochaines)  
+### v2.0 (Prochaines)
 - 🔄 Collaboration temps réel (Socket.io)
 - 🎨 Mode sombre et thèmes
 - 📊 Analytics et métriques

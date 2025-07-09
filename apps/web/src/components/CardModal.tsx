@@ -72,7 +72,7 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
       };
 
-      const response = await fetch(`http://localhost:4000/api/cards/${card.id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${card.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),

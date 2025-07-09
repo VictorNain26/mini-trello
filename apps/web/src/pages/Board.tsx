@@ -115,7 +115,7 @@ export default function Board() {
 
   const loadBoard = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:4000/api/boards/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${id}`, {
         credentials: 'include',
       });
       if (response.ok) {
@@ -146,7 +146,7 @@ export default function Board() {
     if (!id) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/boards/${id}/members`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${id}/members`, {
         credentials: 'include',
       });
       if (response.ok) {
@@ -203,7 +203,7 @@ export default function Board() {
     if (!title.trim() || !board || userRole === 'reader') return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/boards/${board.id}/columns`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${board.id}/columns`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title.trim() }),
@@ -236,7 +236,7 @@ export default function Board() {
       return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/columns/${columnId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -263,7 +263,7 @@ export default function Board() {
     if (!title.trim() || userRole === 'reader') return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/columns/${columnId}/cards`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}/cards`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title.trim() }),
@@ -299,7 +299,7 @@ export default function Board() {
     if (!board) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/boards/${board.id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards/${board.id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -320,7 +320,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `http://localhost:4000/api/boards/${board.id}/members/${userId}`,
+        `${import.meta.env.VITE_API_URL}/api/boards/${board.id}/members/${userId}`,
         {
           method: 'DELETE',
           credentials: 'include',
@@ -343,7 +343,7 @@ export default function Board() {
       return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/cards/${cardId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${cardId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -438,7 +438,7 @@ export default function Board() {
 
           // Update column order on server
           try {
-            await fetch(`http://localhost:4000/api/columns/${activeColumnId}/move`, {
+            await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${activeColumnId}/move`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ order: overIndex }),
@@ -489,7 +489,7 @@ export default function Board() {
         // Update order on server
         try {
           const newOrder = overIndex;
-          await fetch(`http://localhost:4000/api/cards/${activeId}/move`, {
+          await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${activeId}/move`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -539,7 +539,7 @@ export default function Board() {
 
       // Appel API en arrière-plan
       try {
-        await fetch(`http://localhost:4000/api/cards/${activeId}/move`, {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${activeId}/move`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -581,7 +581,7 @@ export default function Board() {
     if (!newTitle.trim() || userRole === 'reader') return;
 
     try {
-      const response = await fetch(`http://localhost:4000/api/columns/${columnId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/columns/${columnId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newTitle.trim() }),
@@ -634,7 +634,7 @@ export default function Board() {
 
   const handleCardDelete = async (cardId: string) => {
     try {
-      const response = await fetch(`http://localhost:4000/api/cards/${cardId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/cards/${cardId}`, {
         method: 'DELETE',
         credentials: 'include',
       });
