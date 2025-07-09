@@ -43,7 +43,7 @@ export default function Dashboard() {
 
     setLoading(true);
     try {
-      const response = await fetch('${import.meta.env.VITE_API_URL}/api/boards', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/boards`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title.trim() }),
