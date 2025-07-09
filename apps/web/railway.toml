@@ -1,0 +1,17 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd ../.. && pnpm install --frozen-lockfile && pnpm build"
+
+[deploy]
+startCommand = "cd apps/web && pnpm preview"
+numReplicas = 1
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[deploy.healthcheck]
+httpPath = "/"
+initialDelaySeconds = 10
+periodSeconds = 30
+timeoutSeconds = 10
+successThreshold = 1
+failureThreshold = 3

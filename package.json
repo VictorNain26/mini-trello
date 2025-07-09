@@ -1,37 +1,16 @@
 {
   "name": "mini-trello",
   "private": true,
-  "packageManager": "pnpm@10.12.4",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "test": "echo 'No tests configured yet. Run pnpm check for TypeScript validation.'",
-    "format": "prettier --write .",
-    "check": "tsc -b .",
-    "db": "pnpm --filter api prisma",
-    "docker:up": "docker compose -f docker/docker-compose.yml up --build -d",
-    "docker:down": "docker compose -f docker/docker-compose.yml down",
-    "start": "pnpm docker:up",
-    "dev:db": "docker compose -f docker-compose.dev.yml up -d",
-    "dev:db:down": "docker compose -f docker-compose.dev.yml down"
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "echo 'No tests configured yet.'",
+    "check": "pnpm -r check"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.0.7",
-    "@typescript-eslint/eslint-plugin": "^8.35.0",
-    "@typescript-eslint/parser": "^8.35.0",
-    "concurrently": "^9.2.0",
-    "eslint": "^9.30.0",
-    "eslint-config-prettier": "^10.1.5",
-    "prettier": "^3.6.2",
-    "tsx": "^4.20.3",
-    "turbo": "^2.5.4",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.35.0"
-  },
-  "dependencies": {
-    "@eslint/js": "^9.30.0",
-    "eslint-plugin-react-hooks": "^5.2.0"
+    "typescript": "^5.8.3"
   }
 }

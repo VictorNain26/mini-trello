@@ -1,0 +1,17 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "cd ../.. && pnpm install --frozen-lockfile && pnpm build"
+
+[deploy]
+startCommand = "cd apps/api && pnpm db migrate deploy && node dist/index.js"
+numReplicas = 1
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+[deploy.healthcheck]
+httpPath = "/health"
+initialDelaySeconds = 30
+periodSeconds = 10
+timeoutSeconds = 5
+successThreshold = 1
+failureThreshold = 3
