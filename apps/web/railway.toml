@@ -1,11 +1,11 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "corepack enable && corepack prepare pnpm@latest --activate && pnpm install --frozen-lockfile && pnpm build"
+buildCommand = "./setup-pnpm.sh"
 rootDirectory = "."
 watchIgnorePaths = ["apps/api/**"]
 
 [deploy]
-startCommand = "corepack enable && corepack prepare pnpm@latest --activate && pnpm preview"
+startCommand = "npm install -g pnpm@latest && pnpm preview"
 numReplicas = 1
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
