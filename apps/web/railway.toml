@@ -1,6 +1,8 @@
 [build]
 builder = "NIXPACKS"
 buildCommand = "corepack enable && corepack prepare pnpm@latest --activate && pnpm install --frozen-lockfile && pnpm build"
+rootDirectory = "."
+watchIgnorePaths = ["apps/api/**"]
 
 [deploy]
 startCommand = "corepack enable && corepack prepare pnpm@latest --activate && pnpm preview"

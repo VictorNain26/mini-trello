@@ -1,6 +1,8 @@
 [build]
 builder = "NIXPACKS"
 buildCommand = "corepack enable && corepack prepare pnpm@latest --activate && pnpm install --frozen-lockfile && pnpm build"
+rootDirectory = "."
+watchIgnorePaths = ["apps/web/**"]
 
 [deploy]
 startCommand = "corepack enable && corepack prepare pnpm@latest --activate && pnpm db migrate deploy && node dist/index.js"
