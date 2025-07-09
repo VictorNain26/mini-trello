@@ -1,12 +1,13 @@
 import type { NextFunction, Request, Response } from 'express';
 import { prisma } from '../db.js';
+import { cache } from '../lib/cache.js';
 import { getAuthenticatedUser, requireAuth } from '../utils/auth.js';
 import { requireBoardPermission } from '../utils/permissions.js';
 import { CreateBoardSchema, UpdateBoardSchema, validateRequest } from '../utils/validation.js';
 
 export class BoardController {
   /**
-   * Get all boards for authenticated user
+   * Get all boards for authenticated user (with caching)
    */
   static async getBoards(req: Request, res: Response, next: NextFunction) {
     try {
@@ -17,26 +18,24 @@ export class BoardController {
         return;
       }
 
-      // Get owned boards
-      const ownedBoards = await prisma.board.findMany({
-        where: { ownerId: userId },
-        include: {
-          _count: {
-            select: { columns: true },
-          },
-          owner: {
-            select: { id: true, name: true, email: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+      // Check cache first
+      const cachedBoards = await cache.getUserBoards(userId);
+      if (cachedBoards) {
+        res.json(cachedBoards);
+        return;
+      }
 
-      // Get shared boards (where user is a member)
-      const sharedBoards = await prisma.board.findMany({
+      // Single optimized query with union
+      const boards = await prisma.board.findMany({
         where: {
-          members: {
-            some: { userId: userId },
-          },
+          OR: [
+            { ownerId: userId },
+            {
+              members: {
+                some: { userId: userId },
+              },
+            },
+          ],
         },
         include: {
           _count: {
@@ -49,12 +48,19 @@ export class BoardController {
         orderBy: { createdAt: 'desc' },
       });
 
-      const boards = {
-        owned: ownedBoards.map((board: any) => ({ ...board, isOwner: true })),
-        shared: sharedBoards.map((board: any) => ({ ...board, isOwner: false })),
+      const result = {
+        owned: boards
+          .filter((board) => board.ownerId === userId)
+          .map((board: any) => ({ ...board, isOwner: true })),
+        shared: boards
+          .filter((board) => board.ownerId !== userId)
+          .map((board: any) => ({ ...board, isOwner: false })),
       };
 
-      res.json(boards);
+      // Cache the result
+      await cache.setUserBoards(userId, result);
+
+      res.json(result);
     } catch (error) {
       console.error('Get boards error:', error);
       res.status(500).json({ error: 'Server error' });
@@ -81,6 +87,9 @@ export class BoardController {
         },
       });
 
+      // Invalidate user boards cache
+      await cache.delUserBoards(userId);
+
       res.json(board);
     } catch (error) {
       if (error instanceof Error) {
@@ -93,7 +102,7 @@ export class BoardController {
   }
 
   /**
-   * Get board by ID with columns and cards
+   * Get board by ID with columns and cards (with caching)
    */
   static async getBoardById(req: Request, res: Response, next: NextFunction) {
     try {
@@ -103,6 +112,17 @@ export class BoardController {
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
+      }
+
+      // Check cache first
+      const cachedBoard = await cache.getBoard(id);
+      if (cachedBoard) {
+        // Still need to verify user has access (cached permissions)
+        const hasAccess = await cache.getUserPermissions(userId, id);
+        if (hasAccess) {
+          res.json(cachedBoard);
+          return;
+        }
       }
 
       const board = await prisma.board.findFirst({
@@ -134,6 +154,9 @@ export class BoardController {
         return;
       }
 
+      // Cache the board data
+      await cache.setBoard(id, board);
+
       res.json(board);
     } catch (error) {
       console.error('Get board error:', error);
@@ -156,6 +179,9 @@ export class BoardController {
         where: { id },
         data: { title: data.title },
       });
+
+      // Invalidate caches
+      await cache.invalidateBoardCaches(id);
 
       res.json({ success: true });
     } catch (error) {
@@ -200,6 +226,10 @@ export class BoardController {
       }
 
       await prisma.board.delete({ where: { id } });
+
+      // Invalidate all related caches
+      await cache.invalidateBoardCaches(id);
+
       res.json({ success: true });
     } catch (error) {
       if (error instanceof Error && error.message === 'Unauthorized') {

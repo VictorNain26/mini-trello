@@ -2,14 +2,36 @@ import { getSession } from '@auth/express';
 import type { Request } from 'express';
 import { authConfig } from '../config/auth.simple.js';
 import { prisma } from '../db.js';
+import { cache } from '../lib/cache.js';
 
 /**
- * Extract user ID from session using Auth.js directly
+ * Extract user ID from session using Auth.js directly (with caching)
  */
 export async function getCurrentUserId(req: Request): Promise<string | null> {
   try {
+    // Try to get session token from cookies
+    const sessionToken =
+      req.cookies?.['authjs.session-token'] || req.cookies?.['__Secure-authjs.session-token'];
+
+    if (sessionToken) {
+      // Check cache first
+      const cachedSession = await cache.getSession(sessionToken);
+      if (cachedSession && typeof cachedSession === 'object' && 'user' in cachedSession) {
+        const user = (cachedSession as any).user;
+        return user?.id || null;
+      }
+    }
+
+    // Get session from Auth.js
     const session = await getSession(req, authConfig);
-    return session?.user?.id || null;
+    const userId = session?.user?.id || null;
+
+    // Cache the session if we have a session token
+    if (sessionToken && session) {
+      await cache.setSession(sessionToken, session);
+    }
+
+    return userId;
   } catch (error) {
     console.error('Session validation error:', error);
     return null;
