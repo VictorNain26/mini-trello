@@ -73,7 +73,7 @@ export function CardModal({ card, isOpen, onClose, onUpdate, onDelete }: CardMod
       };
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/cards/${card.id}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/cards/${card.id}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

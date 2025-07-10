@@ -43,7 +43,7 @@ export function InviteModal({
     setLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards/${boardId}/invite`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards/${boardId}/invite`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

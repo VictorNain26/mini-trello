@@ -117,7 +117,7 @@ export default function Board() {
   const loadBoard = useCallback(async () => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards/${id}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards/${id}`,
         {
           credentials: 'include',
         }
@@ -158,7 +158,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards/${id}/members`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards/${id}/members`,
         {
           credentials: 'include',
         }
@@ -224,7 +224,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards/${board.id}/columns`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards/${board.id}/columns`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -260,7 +260,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/columns/${columnId}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/columns/${columnId}`,
         {
           method: 'DELETE',
           credentials: 'include',
@@ -290,7 +290,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/columns/${columnId}/cards`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/columns/${columnId}/cards`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -329,7 +329,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards/${board.id}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards/${board.id}`,
         {
           method: 'DELETE',
           credentials: 'include',
@@ -352,7 +352,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards/${board.id}/members/${userId}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards/${board.id}/members/${userId}`,
         {
           method: 'DELETE',
           credentials: 'include',
@@ -376,7 +376,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/cards/${cardId}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/cards/${cardId}`,
         {
           method: 'DELETE',
           credentials: 'include',
@@ -474,7 +474,7 @@ export default function Board() {
           // Update column order on server
           try {
             await fetch(
-              `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/columns/${activeColumnId}/move`,
+              `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/columns/${activeColumnId}/move`,
               {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -528,7 +528,7 @@ export default function Board() {
         try {
           const newOrder = overIndex;
           await fetch(
-            `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/cards/${activeId}/move`,
+            `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/cards/${activeId}/move`,
             {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
@@ -581,7 +581,7 @@ export default function Board() {
       // Appel API en arrière-plan
       try {
         await fetch(
-          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/cards/${activeId}/move`,
+          `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/cards/${activeId}/move`,
           {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -626,7 +626,7 @@ export default function Board() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/columns/${columnId}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/columns/${columnId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -682,7 +682,7 @@ export default function Board() {
   const handleCardDelete = async (cardId: string) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/cards/${cardId}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/cards/${cardId}`,
         {
           method: 'DELETE',
           credentials: 'include',

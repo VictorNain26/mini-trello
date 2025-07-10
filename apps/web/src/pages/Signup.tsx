@@ -61,7 +61,7 @@ export default function Signup() {
     try {
       // Create user account via direct API call (simpler)
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/signup`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/signup`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

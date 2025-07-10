@@ -19,7 +19,7 @@ export default defineConfig({
   preview: {
     host: true,
     port: Number(process.env.PORT) || 5173,
-    allowedHosts: ['web-production-b1e9.up.railway.app'],
+    allowedHosts: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : [],
   },
   server: {
     host: true,

@@ -21,7 +21,7 @@ export default function Dashboard() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards`,
         {
           credentials: 'include',
         }
@@ -68,7 +68,7 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -113,7 +113,7 @@ export default function Dashboard() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards/${boardId}`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/boards/${boardId}`,
         {
           method: 'DELETE',
           credentials: 'include',

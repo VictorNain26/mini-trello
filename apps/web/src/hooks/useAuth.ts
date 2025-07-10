@@ -76,7 +76,7 @@ export function useAuth() {
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/auth/session`,
+          `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/auth/session`,
           {
             credentials: 'include',
             headers: {
@@ -132,7 +132,7 @@ export function useAuth() {
 
       // Get CSRF token first
       const csrfResponse = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/auth/csrf`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/auth/csrf`,
         {
           credentials: 'include',
         }
@@ -146,7 +146,7 @@ export function useAuth() {
 
       // Sign in with credentials
       await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/auth/callback/credentials`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/auth/callback/credentials`,
         {
           method: 'POST',
           headers: {
@@ -170,7 +170,7 @@ export function useAuth() {
 
       // Wait a moment for state to update, then check session response directly
       const sessionResponse = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/auth/session`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/auth/session`,
         {
           credentials: 'include',
           headers: {
@@ -203,7 +203,7 @@ export function useAuth() {
 
       // Get CSRF token
       const csrfResponse = await fetch(
-        `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/auth/csrf`,
+        `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/auth/csrf`,
         {
           credentials: 'include',
         }
@@ -214,7 +214,7 @@ export function useAuth() {
 
         // Sign out
         await fetch(
-          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/auth/signout`,
+          `${import.meta.env.VITE_API_URL || 'https://api-production-e29c.up.railway.app'}/api/auth/signout`,
           {
             method: 'POST',
             headers: {
