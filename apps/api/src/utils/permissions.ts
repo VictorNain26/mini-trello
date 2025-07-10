@@ -20,13 +20,7 @@ interface CachedPermissions {
  * Get user role on a board (with caching)
  */
 export async function getUserBoardRole(boardId: string, userId: string): Promise<UserRole | null> {
-  // Check cache first
-  const cached = await cache.getUserPermissions(userId, boardId);
-  if (cached && typeof cached === 'object' && 'role' in cached) {
-    return (cached as CachedPermissions).role;
-  }
-
-  // Get from database
+  // Skip cache - get fresh data from database
   const board = await prisma.board.findUnique({
     where: { id: boardId },
     include: {
@@ -49,10 +43,6 @@ export async function getUserBoardRole(boardId: string, userId: string): Promise
     const member = board.members[0];
     role = (member?.role as UserRole) || null;
   }
-
-  // Cache the result
-  const permissions = getPermissionsForRole(role);
-  await cache.setUserPermissions(userId, boardId, { role, permissions });
 
   return role;
 }
@@ -115,13 +105,7 @@ export async function checkBoardPermission(
   userId: string,
   action: keyof BoardPermissions
 ): Promise<boolean> {
-  // Check cache first
-  const cached = await cache.getUserPermissions(userId, boardId);
-  if (cached && typeof cached === 'object' && 'permissions' in cached) {
-    return (cached as CachedPermissions).permissions[action];
-  }
-
-  // Get from database and cache
+  // Get fresh data from database
   const role = await getUserBoardRole(boardId, userId);
   const permissions = getPermissionsForRole(role);
   return permissions[action];

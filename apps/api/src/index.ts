@@ -16,6 +16,7 @@ import { getRedisClient } from './config/redis.js';
 import { createContext } from './context.js';
 import { prisma } from './db.js';
 import { errorHandler, errorNotFoundHandler } from './middleware/error.middleware.js';
+import { cacheBusterMiddleware } from './middleware/cache-buster.js';
 import { appRouter } from './router.js';
 // Import routes
 import { boardRoutes } from './routes/boards.js';
@@ -73,6 +74,9 @@ app.use(
 app.use(express.static(path.join(import.meta.dirname, '..', 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Disable caching in production to prevent stale data
+app.use(cacheBusterMiddleware);
 
 /* ───────────── Simple signup endpoint ─────────── */
 app.post('/api/signup', async (req: Request, res: Response) => {

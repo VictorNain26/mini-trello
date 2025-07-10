@@ -13,23 +13,9 @@ export async function getCurrentUserId(req: Request): Promise<string | null> {
     const sessionToken =
       req.cookies?.['authjs.session-token'] || req.cookies?.['__Secure-authjs.session-token'];
 
-    if (sessionToken) {
-      // Check cache first
-      const cachedSession = await cache.getSession(sessionToken);
-      if (cachedSession && typeof cachedSession === 'object' && 'user' in cachedSession) {
-        const user = (cachedSession as any).user;
-        return user?.id || null;
-      }
-    }
-
-    // Get session from Auth.js
+    // Skip session cache - get fresh data from Auth.js
     const session = await getSession(req, authConfig);
     const userId = session?.user?.id || null;
-
-    // Cache the session if we have a session token
-    if (sessionToken && session) {
-      await cache.setSession(sessionToken, session);
-    }
 
     return userId;
   } catch (error) {
