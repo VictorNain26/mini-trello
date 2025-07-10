@@ -48,15 +48,12 @@ export class BoardController {
         orderBy: { createdAt: 'desc' },
       });
 
-      type BoardWithOwnership = typeof boards[0] & { isOwner: boolean };
+      const ownedBoards = boards.filter((board: any) => board.ownerId === userId);
+      const sharedBoards = boards.filter((board: any) => board.ownerId !== userId);
       
       const result = {
-        owned: boards
-          .filter((board): board is typeof board => board.ownerId === userId)
-          .map((board): BoardWithOwnership => ({ ...board, isOwner: true })),
-        shared: boards
-          .filter((board): board is typeof board => board.ownerId !== userId)
-          .map((board): BoardWithOwnership => ({ ...board, isOwner: false })),
+        owned: ownedBoards.map((board: any) => ({ ...board, isOwner: true })),
+        shared: sharedBoards.map((board: any) => ({ ...board, isOwner: false })),
       };
 
       // Cache the result
