@@ -50,7 +50,7 @@ export class BoardController {
 
       const ownedBoards = boards.filter((board: any) => board.ownerId === userId);
       const sharedBoards = boards.filter((board: any) => board.ownerId !== userId);
-      
+
       const result = {
         owned: ownedBoards.map((board: any) => ({ ...board, isOwner: true })),
         shared: sharedBoards.map((board: any) => ({ ...board, isOwner: false })),

@@ -8,10 +8,10 @@ export function cacheBusterMiddleware(req: Request, res: Response, next: NextFun
   // Set headers to prevent caching
   res.set({
     'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0',
-    'ETag': false,
+    Pragma: 'no-cache',
+    Expires: '0',
+    ETag: false,
   });
-  
+
   next();
 }

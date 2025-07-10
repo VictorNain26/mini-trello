@@ -1,5 +1,4 @@
 import { prisma } from '../db.js';
-import { cache } from '../lib/cache.js';
 
 export type UserRole = 'owner' | 'editor' | 'reader';
 
@@ -9,11 +8,6 @@ export interface BoardPermissions {
   canDelete: boolean;
   canInvite: boolean;
   canManageMembers: boolean;
-}
-
-interface CachedPermissions {
-  role: UserRole | null;
-  permissions: BoardPermissions;
 }
 
 /**

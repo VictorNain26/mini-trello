@@ -15,8 +15,8 @@ import { authConfig } from './config/auth.simple.js';
 import { getRedisClient } from './config/redis.js';
 import { createContext } from './context.js';
 import { prisma } from './db.js';
-import { errorHandler, errorNotFoundHandler } from './middleware/error.middleware.js';
 import { cacheBusterMiddleware } from './middleware/cache-buster.js';
+import { errorHandler, errorNotFoundHandler } from './middleware/error.middleware.js';
 import { appRouter } from './router.js';
 // Import routes
 import { boardRoutes } from './routes/boards.js';

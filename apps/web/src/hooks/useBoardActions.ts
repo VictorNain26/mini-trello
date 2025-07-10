@@ -14,7 +14,7 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/boards/${boardId}/columns`,
+          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/boards/${boardId}/columns`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -47,7 +47,7 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}`,
+          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/columns/${columnId}`,
           {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -79,7 +79,7 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}`,
+          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/columns/${columnId}`,
           {
             method: 'DELETE',
             credentials: 'include',
@@ -109,7 +109,7 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}/cards`,
+          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/columns/${columnId}/cards`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -142,7 +142,7 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${cardId}`,
+          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/cards/${cardId}`,
           {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -173,7 +173,7 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${cardId}`,
+          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/cards/${cardId}`,
           {
             method: 'DELETE',
             credentials: 'include',
@@ -203,7 +203,7 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/cards/${cardId}/move`,
+          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/cards/${cardId}/move`,
           {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -226,7 +226,7 @@ export function useBoardActions({ boardId, userRole, onUpdate }: UseBoardActions
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/columns/${columnId}/move`,
+          `${import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api-production-e29c.up.railway.app' : 'http://localhost:4000')}/api/columns/${columnId}/move`,
           {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },

@@ -2,7 +2,6 @@ import { getSession } from '@auth/express';
 import type { Request } from 'express';
 import { authConfig } from '../config/auth.simple.js';
 import { prisma } from '../db.js';
-import { cache } from '../lib/cache.js';
 
 /**
  * Extract user ID from session using Auth.js directly (with caching)
@@ -10,7 +9,7 @@ import { cache } from '../lib/cache.js';
 export async function getCurrentUserId(req: Request): Promise<string | null> {
   try {
     // Try to get session token from cookies
-    const sessionToken =
+    const _sessionToken =
       req.cookies?.['authjs.session-token'] || req.cookies?.['__Secure-authjs.session-token'];
 
     // Skip session cache - get fresh data from Auth.js
