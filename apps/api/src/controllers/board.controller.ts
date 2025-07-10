@@ -18,12 +18,12 @@ export class BoardController {
         return;
       }
 
-      // Check cache first
-      const cachedBoards = await cache.getUserBoards(userId);
-      if (cachedBoards) {
-        res.json(cachedBoards);
-        return;
-      }
+      // Skip cache for now - always get fresh data
+      // const cachedBoards = await cache.getUserBoards(userId);
+      // if (cachedBoards) {
+      //   res.json(cachedBoards);
+      //   return;
+      // }
 
       // Single optimized query with union
       const boards = await prisma.board.findMany({
@@ -56,8 +56,8 @@ export class BoardController {
         shared: sharedBoards.map((board: any) => ({ ...board, isOwner: false })),
       };
 
-      // Cache the result
-      await cache.setUserBoards(userId, result);
+      // Skip caching for now
+      // await cache.setUserBoards(userId, result);
 
       res.json(result);
     } catch (error) {
@@ -118,16 +118,8 @@ export class BoardController {
         return;
       }
 
-      // Check cache first
-      const cachedBoard = await cache.getBoard(id);
-      if (cachedBoard) {
-        // Still need to verify user has access (cached permissions)
-        const hasAccess = await cache.getUserPermissions(userId, id);
-        if (hasAccess) {
-          res.json(cachedBoard);
-          return;
-        }
-      }
+      // Skip cache for now - always get fresh data from database
+      // TODO: Implement proper cache invalidation strategy
 
       const board = await prisma.board.findFirst({
         where: {
@@ -158,8 +150,8 @@ export class BoardController {
         return;
       }
 
-      // Cache the board data
-      await cache.setBoard(id, board);
+      // Skip caching for now to avoid stale data
+      // await cache.setBoard(id, board);
 
       res.json(board);
     } catch (error) {
