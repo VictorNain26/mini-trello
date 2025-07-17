@@ -19,11 +19,11 @@ export default defineConfig({
   preview: {
     host: true,
     port: Number(process.env.PORT) || 5173,
-    allowedHosts: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : [],
+    allowedHosts: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : ['localhost'],
   },
   server: {
     host: true,
     port: Number(process.env.PORT) || 5173,
-    allowedHosts: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : [],
+    allowedHosts: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : ['localhost'],
   },
 });
